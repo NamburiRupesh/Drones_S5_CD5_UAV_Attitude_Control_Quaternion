@@ -1,4 +1,4 @@
-# Quaternion-Based Attitude Control of a Quadrotor UAV
+# Full Quaternion-Based Attitude Control of a Quadrotor UAV
 
 ## Team Members
 
