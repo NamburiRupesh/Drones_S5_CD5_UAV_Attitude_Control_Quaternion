@@ -12,10 +12,11 @@
 
 | Name | Roll Number | Email |
 |---|---|---|
-| *To be added* | *To be added* | *To be added* |
-| *To be added* | *To be added* | *To be added* |
-| *To be added* | *To be added* | *To be added* |
-| *To be added* | *To be added* | *To be added* |
+| *Gudivada Geetam Rishi Kanth* | *CB.SC.U4AIE24218* | *cb.sc.u4aie24218@cb.students.amrita.edu* |
+| *Nakka Saampotth Maddileti* | *CB.SC.U4AIE24233* | *cb.sc.u4aie24233@cb.students.amrita.edu* |
+| *Namburi Rupesh* | *CB.SC.U4AIE24234* | *cb.sc.u4aie24234@cb.students.amrita.edu* |
+| *Telapolu Balaprasanna Kumar* | *CB.SC.U4AIE24256* | *cb.sc.u4aie24256@cb.students.amrita.edu* |
+| *Uday Sri Yaramati* | *CB.SC.U4AIE24260* | *cb.sc.u4aie24260@cb.students.amrita.edu* |
 
 ---
 
