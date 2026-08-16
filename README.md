@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Images/logo-branding-amrita-universiy-2024.jpg" alt="Amrita Vishwa Vidyapeetham" width="900">
+</p>
+
 # Full Quaternion-Based Attitude Control of a Quadrotor UAV
 
 ## Team Members
