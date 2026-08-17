@@ -119,9 +119,21 @@ $$
 For two scalar-first quaternions
 
 $$
-p=\begin{bmatrix}p_w\\p_x\\p_y\\p_z\end{bmatrix},
+p=
+\begin{bmatrix}
+p_w \\
+p_x \\
+p_y \\
+p_z \
+end{bmatrix},
 \qquad
-q=\begin{bmatrix}q_w\\q_x\\q_y\\q_z\end{bmatrix},
+q=
+\begin{bmatrix}
+q_w \\ 
+q_x \\
+q_y \\
+q_z \
+end{bmatrix},
 $$
 
 the quaternion product is
@@ -163,7 +175,13 @@ $$
 The desired roll $\phi$, pitch $\theta$, and yaw $\psi$ are converted into a reference quaternion using the **ZYX (yaw-pitch-roll) convention**.
 
 $$
-q_{ref}=\begin{bmatrix}q_w\\q_x\\q_y\\q_z\end{bmatrix}
+q_{ref} =
+\begin{bmatrix}
+q_w \\
+q_x \\
+q_y \\
+q_z
+\end{bmatrix}
 $$
 
 The quaternion components are
