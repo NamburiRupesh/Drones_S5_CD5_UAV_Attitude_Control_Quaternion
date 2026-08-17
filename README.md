@@ -149,36 +149,48 @@ $$
 
 ## 4. Reference Attitude Generation
 
-The desired roll $\phi$, pitch $\theta$, and yaw $\psi$ are converted into a reference quaternion. For the ZYX convention:
+The desired roll $\phi$, pitch $\theta$, and yaw $\psi$ are converted into a reference quaternion using the ZYX convention.
 
 $$
 q_{ref}=\begin{bmatrix}q_w\\q_x\\q_y\\q_z\end{bmatrix}
 $$
 
-where
+The quaternion components are calculated as
 
 $$
-q_w=\cos\frac{\phi}{2}\cos\frac{\theta}{2}\cos\frac{\psi}{2}+\sin\frac{\phi}{2}\sin\frac{\theta}{2}\sin\frac{\psi}{2}
+\begin{aligned}
+q_w &= \cos\frac{\phi}{2}\cos\frac{\theta}{2}\cos\frac{\psi}{2}
++\sin\frac{\phi}{2}\sin\frac{\theta}{2}\sin\frac{\psi}{2},\\
+q_x &= \sin\frac{\phi}{2}\cos\frac{\theta}{2}\cos\frac{\psi}{2}
+-\cos\frac{\phi}{2}\sin\frac{\theta}{2}\sin\frac{\psi}{2},\\
+q_y &= \cos\frac{\phi}{2}\sin\frac{\theta}{2}\cos\frac{\psi}{2}
++\sin\frac{\phi}{2}\cos\frac{\theta}{2}\sin\frac{\psi}{2},\\
+q_z &= \cos\frac{\phi}{2}\cos\frac{\theta}{2}\sin\frac{\psi}{2}
+-\sin\frac{\phi}{2}\sin\frac{\theta}{2}\cos\frac{\psi}{2}.
+\end{aligned}
 $$
 
-$$
-q_x=\sin\frac{\phi}{2}\cos\frac{\theta}{2}\cos\frac{\psi}{2}-\cos\frac{\phi}{2}\sin\frac{\theta}{2}\sin\frac{\psi}{2}
-$$
+### 4.1 Example: 90-Degree Roll
+
+For a pure 90-degree roll command, $\theta=0$ and $\psi=0$. Therefore,
 
 $$
-q_y=\cos\frac{\phi}{2}\sin\frac{\theta}{2}\cos\frac{\psi}{2}+\sin\frac{\phi}{2}\cos\frac{\theta}{2}\sin\frac{\psi}{2}
+q_{ref}=\begin{bmatrix}
+\cos(\pi/4)\\
+\sin(\pi/4)\\
+0\\
+0
+\end{bmatrix}
+\approx
+\begin{bmatrix}
+0.7071\\
+0.7071\\
+0\\
+0
+\end{bmatrix}.
 $$
 
-$$
-q_z=\cos\frac{\phi}{2}\cos\frac{\theta}{2}\sin\frac{\psi}{2}-\sin\frac{\phi}{2}\sin\frac{\theta}{2}\cos\frac{\psi}{2}.
-$$
-
-For a 90-degree roll command,
-
-$$
-q_{ref}=\begin{bmatrix}\cos45^\circ\\\sin45^\circ\\0\\0\end{bmatrix}
-\approx\begin{bmatrix}0.7071\\0.7071\\0\\0\end{bmatrix}.
-$$
+This quaternion represents the desired 90-degree rotation about the roll axis.
 
 ## 5. Quaternion Attitude Error
 
