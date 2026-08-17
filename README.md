@@ -366,14 +366,19 @@ A combined attitude command was applied to the UAV with the following reference 
 | Pitch | 30° |
 | Yaw | 30° |
 
-The corresponding scope output was used to observe the simulated roll, pitch, and yaw response of the UAV.
+The corresponding Simulink Scope output is shown below.
 
 ![Simulink Scope](Images/scope.png)
 
-*Figure 2. Simulink scope showing the UAV attitude response for Roll = 90°, Pitch = 30°, and Yaw = 30°.*
+*Figure 2. Simulink Scope showing the UAV attitude response for Roll = 90°, Pitch = 30°, and Yaw = 30°.*
 
-The scope demonstrates the response of the attitude-control system to the combined reference command. The three attitude components are monitored simultaneously to verify that the controller can handle roll, pitch, and yaw commands within the same simulation.
+The three colored traces in the scope represent the three attitude components:
 
+- **Blue trace — Roll:** represents the UAV's rotation about the **X-axis**. The commanded roll angle is **90°**.
+- **Orange trace — Pitch:** represents the UAV's rotation about the **Y-axis**. The commanded pitch angle is **30°**.
+- **Yellow trace — Yaw:** represents the UAV's rotation about the **Z-axis**. The commanded yaw angle is **30°**.
+
+The scope therefore allows the response of all three rotational degrees of freedom to be observed simultaneously. The output demonstrates how the quaternion-based controller responds to the combined roll, pitch, and yaw reference commands.
 ### 9.3 90-Degree Roll Demonstration
 
 A separate simulation was performed with a roll reference of 90°. The animation shows the UAV rotating about its roll axis toward the commanded attitude.
