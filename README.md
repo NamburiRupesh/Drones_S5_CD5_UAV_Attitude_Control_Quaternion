@@ -378,7 +378,7 @@ The scope demonstrates the response of the attitude-control system to the combin
 
 A separate simulation was performed with a roll reference of 90°. The animation shows the UAV rotating about its roll axis toward the commanded attitude.
 
-![90-Degree Roll Animation](Animations/drones.gif)
+![90-Degree Roll Animation](Animations/drone.gif)
 
 *Figure 3. Simulink 3D animation demonstrating a 90° roll maneuver.*
 
