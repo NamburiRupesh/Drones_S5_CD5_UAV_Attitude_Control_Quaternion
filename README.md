@@ -388,50 +388,5 @@ $$
 
 These gains are simulation parameters and may be tuned further during the project.
 
-## 9. Feedback and Simulation Environments
 
-The measured quaternion and angular velocity are fed back to the P2 controller, forming a closed-loop attitude-control system.
-
-### MATLAB/Simulink
-
-The Simulink model contains quaternion reference generation, the P2 controller, angular dynamics, quaternion dynamics, state integration, quaternion-to-Euler conversion, and 3D UAV visualization using UAV Toolbox.
-
-### MuJoCo
-
-MuJoCo is being used as an additional physics-based simulation environment for studying the same quadrotor attitude-control problem and evaluating the quaternion-based control approach.
-
-## 10. Methodology Summary
-
-The complete methodology can be summarized as
-
-$$
-(\phi_{ref},\theta_{ref},\psi_{ref})
-\rightarrow q_{ref}
-\rightarrow q_{err}
-\rightarrow \tau
-\rightarrow \dot{\omega}
-\rightarrow \omega
-\rightarrow \dot q
-\rightarrow q_m.
-$$
-
-The measured states are continuously fed back to the P2 controller. This follows the central quaternion-space methodology of the base paper while extending the implementation into MATLAB/Simulink and MuJoCo simulation environments.
-
-# Results
-
-*Results will be added after the simulation and evaluation phase is completed. This section will include Scope plots, quaternion responses, roll/pitch/yaw tracking results, control torque responses, 3D UAV screenshots/recordings, and MuJoCo simulation results.*
-
-# Conclusion
-
-*The final conclusion will be added after completion of the simulation and performance analysis.*
-
-# References
-
-1. E. Fresk and G. Nikolakopoulos, **“Full Quaternion Based Attitude Control for a Quadrotor,”** European Control Conference (ECC), 2013. **Base Paper.**
-2. T. Bresciani, **“Modelling, Identification and Control of a Quadrotor Helicopter,”** Ph.D. dissertation, Lund University, 2008.
-3. R. Mahony, V. Kumar, and P. Corke, **“Multirotor Aerial Vehicles: Modeling, Estimation, and Control of Quadrotor,”** IEEE Robotics & Automation Magazine, 2012.
-4. J. B. Kuipers, **Quaternions and Rotation Sequences**, Princeton University Press, 1998.
-5. J. Diebel, **“Representing Attitude: Euler Angles, Unit Quaternions, and Rotation Vectors,”** 2006.
-6. MathWorks, **UAV Toolbox Documentation:** https://www.mathworks.com/help/uav/
-7. MathWorks, **Simulink Documentation:** https://www.mathworks.com/help/simulink/
 8. MuJoCo Documentation: https://mujoco.readthedocs.io/
