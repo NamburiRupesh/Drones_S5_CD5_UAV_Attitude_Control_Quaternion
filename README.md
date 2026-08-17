@@ -2,7 +2,7 @@
   <img src="Images/logo-branding-amrita-universiy-2024.jpg" alt="Amrita Vishwa Vidyapeetham" width="900">
 </p>
 
-# Full Quaternion-Based Attitude Control of a Quadrotor UAV
+
 
 ## Team Members
 
@@ -13,6 +13,10 @@
 | 3 | Namburi Rupesh | cb.sc.u4aie24234 | cb.sc.u4aie24234@cb.students.amrita.edu |
 | 4 | Telapolu Bala Prasanna Kumar | cb.sc.u4aie24256 | cb.sc.u4aie24256@cb.students.amrita.edu |
 | 5 | Uday Sri Yaramati | cb.sc.u4aie24260 | cb.sc.u4aie24260@cb.students.amrita.edu |
+
+
+# Full Quaternion-Based Attitude Control of a Quadrotor UAV
+
 
 ## Abstract
 
