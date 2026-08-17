@@ -33,14 +33,17 @@ A unit quaternion can be represented as
 $$
 q =
 \begin{bmatrix}
-q_0 & q_1 & q_2 & q_3
-\end{bmatrix}^{T},
+q_w\\
+q_x\\
+q_y\\
+q_z
+\end{bmatrix},
 $$
 
 with the unit-norm constraint
 
 $$
-q_0^2+q_1^2+q_2^2+q_3^2=1.
+q_w^2+q_x^2+q_y^2+q_z^2=1.
 $$
 
 Quaternions can therefore be used to represent the UAV's orientation and calculate attitude errors directly in quaternion space. Euler angles can still be used at the input or visualization level, allowing intuitive roll, pitch, and yaw commands to be converted into quaternion references.
@@ -91,29 +94,34 @@ The controller forms the feedback loop using the measured quaternion and angular
 
 ### 3.1 Quaternion Representation
 
-A quaternion is represented as
+The project uses the **scalar-first** quaternion convention:
 
 $$
 q =
 \begin{bmatrix}
-q_0 & q_1 & q_2 & q_3
-\end{bmatrix}^{T}
+q_w\\
+q_x\\
+q_y\\
+q_z
+\end{bmatrix}
 $$
 
-where $q_0$ is the scalar part and $(q_1,q_2,q_3)$ is the vector part.
+where $q_w$ is the scalar part and $(q_x,q_y,q_z)$ is the vector part.
 
 For a valid attitude representation, the quaternion must satisfy
 
 $$
-\|q\| = \sqrt{q_0^2+q_1^2+q_2^2+q_3^2}=1.
+\|q\| = \sqrt{q_w^2+q_x^2+q_y^2+q_z^2}=1.
 $$
 
 ### 3.2 Quaternion Multiplication
 
-For
+For two scalar-first quaternions
 
 $$
-p=[p_0,p_1,p_2,p_3]^T,\qquad q=[q_0,q_1,q_2,q_3]^T,
+p=\begin{bmatrix}p_w\\p_x\\p_y\\p_z\end{bmatrix},
+\qquad
+q=\begin{bmatrix}q_w\\q_x\\q_y\\q_z\end{bmatrix},
 $$
 
 the quaternion product is
@@ -121,10 +129,10 @@ the quaternion product is
 $$
 p\otimes q =
 \begin{bmatrix}
- p_0q_0-p_1q_1-p_2q_2-p_3q_3\\
- p_0q_1+p_1q_0+p_2q_3-p_3q_2\\
- p_0q_2-p_1q_3+p_2q_0+p_3q_1\\
- p_0q_3+p_1q_2-p_2q_1+p_3q_0
+ p_wq_w-p_xq_x-p_yq_y-p_zq_z\\
+ p_wq_x+p_xq_w+p_yq_z-p_zq_y\\
+ p_wq_y-p_xq_z+p_yq_w+p_zq_x\\
+ p_wq_z+p_xq_y-p_yq_x+p_zq_w
 \end{bmatrix}.
 $$
 
@@ -132,13 +140,16 @@ Quaternion multiplication is non-commutative, consistent with three-dimensional 
 
 ### 3.3 Quaternion Conjugate and Inverse
 
-The conjugate is
+The conjugate of a scalar-first quaternion is
 
 $$
 q^*=
 \begin{bmatrix}
-q_0 & -q_1 & -q_2 & -q_3
-\end{bmatrix}^{T}.
+q_w\\
+-q_x\\
+-q_y\\
+-q_z
+\end{bmatrix}.
 $$
 
 For a unit quaternion,
@@ -149,13 +160,13 @@ $$
 
 ## 4. Reference Attitude Generation
 
-The desired roll $\phi$, pitch $\theta$, and yaw $\psi$ are converted into a reference quaternion using the ZYX convention.
+The desired roll $\phi$, pitch $\theta$, and yaw $\psi$ are converted into a reference quaternion using the **ZYX (yaw-pitch-roll) convention**.
 
 $$
 q_{ref}=\begin{bmatrix}q_w\\q_x\\q_y\\q_z\end{bmatrix}
 $$
 
-The quaternion components are calculated as
+The quaternion components are
 
 $$
 \begin{aligned}
@@ -194,19 +205,45 @@ This quaternion represents the desired 90-degree rotation about the roll axis.
 
 ## 5. Quaternion Attitude Error
 
-The measured attitude is $q_m$. The error quaternion is
+The measured attitude is $q_m$. For the scalar-first convention, the inverse of the measured unit quaternion is
+
+$$
+q_m^{-1}=q_m^*=\begin{bmatrix}
+q_{mw}\\
+-q_{mx}\\
+-q_{my}\\
+-q_{mz}
+\end{bmatrix}.
+$$
+
+The attitude-error quaternion is
 
 $$
 q_{err}=q_{ref}\otimes q_m^*.
 $$
 
-Its vector part is
+Writing
 
 $$
-q_{err,v}=\begin{bmatrix}q_{err,1}\\q_{err,2}\\q_{err,3}\end{bmatrix}.
+q_{err}=\begin{bmatrix}
+q_{err,w}\\
+q_{err,x}\\
+q_{err,y}\\
+q_{err,z}
+\end{bmatrix},
 $$
 
-This vector is used as the attitude-axis error by the controller. The base paper also considers the sign of $q_{err,0}$ to select the shorter rotation when required.
+its vector part is
+
+$$
+q_{err,v}=\begin{bmatrix}
+q_{err,x}\\
+q_{err,y}\\
+q_{err,z}
+\end{bmatrix}.
+$$
+
+This vector part is used as the attitude-axis error by the P2 controller.
 
 ## 6. Quadrotor Rotational Dynamics
 
@@ -252,13 +289,26 @@ The full nonlinear gyroscopic term from the base-paper model can be incorporated
 
 ## 7. Quaternion Kinematics
 
-For body-frame angular velocity, the base paper gives the quaternion kinematics in the form
+For the adopted scalar-first quaternion convention and body-frame angular velocity, the quaternion kinematics are written as
 
 $$
-\dot q=\frac{1}{2}\begin{bmatrix}0\\\omega\end{bmatrix}\otimes q,
+\dot q=\frac{1}{2}
+\begin{bmatrix}
+0 & -\omega_x & -\omega_y & -\omega_z\\
+\omega_x & 0 & \omega_z & -\omega_y\\
+\omega_y & -\omega_z & 0 & \omega_x\\
+\omega_z & \omega_y & -\omega_x & 0
+\end{bmatrix}q.
 $$
 
-with the exact sign/order determined by the adopted quaternion convention.
+Equivalently,
+
+$$
+\dot q=\frac{1}{2}\,q\otimes
+\begin{bmatrix}0\\\omega_x\\\omega_y\\\omega_z\end{bmatrix}
+$$
+
+for the adopted multiplication/order convention.
 
 The project propagates the quaternion state using the simulated angular velocity. The initial attitude is
 
@@ -271,28 +321,37 @@ $$
 The nonlinear P2 controller proposed in the base paper combines quaternion attitude-error feedback with angular-velocity feedback:
 
 $$
+\tau=-P_q q_{err,v}-P_\omega\omega.
+$$
+
+Expanding the vector terms,
+
+$$
 \tau=-P_q
-\begin{bmatrix}q_{err,1}\\q_{err,2}\\q_{err,3}\end{bmatrix}
+\begin{bmatrix}
+q_{err,x}\\
+q_{err,y}\\
+q_{err,z}
+\end{bmatrix}
 -P_\omega
-\begin{bmatrix}\omega_x\\\omega_y\\\omega_z\end{bmatrix}.
+\begin{bmatrix}
+\omega_x\\
+\omega_y\\
+\omega_z
+\end{bmatrix}.
 $$
 
-Equivalently,
-
-$$
-\boxed{\tau=-P_q q_{err,v}-P_\omega\omega}
-$$
-
-where $P_q$ is the quaternion-error gain and $P_\omega$ is the angular-rate feedback gain. The controller is derivative-free and operates directly on the quaternion error and angular velocity.
+where $P_q$ is the quaternion-error gain and $P_\omega$ is the angular-rate feedback gain. The controller operates directly on the quaternion error and angular velocity.
 
 ### Current Controller Parameters
 
 The current MATLAB Function implementation follows the same control structure:
 
 ```matlab
-q_m_inv = [-q_m(1); -q_m(2); -q_m(3); q_m(4)];
+% Scalar-first quaternion convention: [qw; qx; qy; qz]
+q_m_inv = [q_m(1); -q_m(2); -q_m(3); -q_m(4)];
 q_error = quatMultiply(q_ref, q_m_inv);
-q_error_vec = q_error(1:3);
+q_error_vec = q_error(2:4);
 tau = -Pq*q_error_vec - Pomega*omega;
 ```
 
