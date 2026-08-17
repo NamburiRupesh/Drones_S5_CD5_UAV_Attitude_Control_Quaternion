@@ -352,7 +352,7 @@ The quaternion-based attitude controller was first evaluated in MATLAB/Simulink.
 
 The complete Simulink model integrates the reference-attitude generation, quaternion-based P2 controller, rotational dynamics, quaternion state propagation, and visualization blocks.
 
-![Complete Simulink Model](images/Simulink_model.png)
+![Complete Simulink Model](Images/Simulink_model.png)
 
 *Figure 1. Complete MATLAB/Simulink model for quaternion-based UAV attitude control.*
 
@@ -368,7 +368,7 @@ A combined attitude command was applied to the UAV with the following reference 
 
 The corresponding scope output was used to observe the simulated roll, pitch, and yaw response of the UAV.
 
-![Simulink Scope](images/scope.png)
+![Simulink Scope](Images/scope.png)
 
 *Figure 2. Simulink scope showing the UAV attitude response for Roll = 90°, Pitch = 30°, and Yaw = 30°.*
 
