@@ -1,0 +1,469 @@
+<mujoco model="quaternion_quadrotor">
+
+    <!-- ============================================================
+         PHYSICS: ORIGINAL SETTINGS PRESERVED
+         ============================================================ -->
+    <option
+        timestep="0.0002"
+        gravity="0 0 0"
+    />
+
+    <!-- Visual-only materials and lighting. These do not affect physics. -->
+    <asset>
+        <!-- Drone -->
+        <material name="drone_body_mat" rgba="0.08 0.10 0.13 1" />
+        <material name="drone_panel_mat" rgba="0.18 0.20 0.24 1" />
+        <material name="drone_metal_mat" rgba="0.32 0.35 0.40 1" />
+        <material name="drone_glass_mat" rgba="0.03 0.12 0.18 1" />
+        <material name="drone_led_mat" rgba="0.10 0.75 1.00 1" emission="0.6" />
+        <material name="prop_mat" rgba="0.03 0.04 0.05 0.75" />
+
+        <!-- Environment -->
+        <material name="ground_mat" rgba="0.12 0.14 0.16 1" />
+        <material name="road_mat" rgba="0.055 0.060 0.070 1" />
+        <material name="lane_mat" rgba="0.88 0.84 0.62 1" />
+        <material name="sidewalk_mat" rgba="0.30 0.31 0.33 1" />
+        <material name="block_a_mat" rgba="0.20 0.30 0.42 1" />
+        <material name="block_b_mat" rgba="0.35 0.25 0.18 1" />
+        <material name="block_c_mat" rgba="0.22 0.34 0.27 1" />
+        <material name="block_d_mat" rgba="0.38 0.25 0.38 1" />
+        <material name="car_body_mat" rgba="0.72 0.12 0.10 1" />
+        <material name="car_body_2_mat" rgba="0.10 0.30 0.62 1" />
+        <material name="car_glass_mat" rgba="0.04 0.08 0.12 1" />
+        <material name="wheel_mat" rgba="0.025 0.025 0.028 1" />
+        <material name="pad_mat" rgba="0.20 0.55 0.30 1" />
+        <material name="barrier_mat" rgba="0.90 0.55 0.08 1" />
+    </asset>
+
+    <!-- Rendering only: no effect on dynamics/controller. -->
+    <visual>
+        <headlight diffuse="0.75 0.78 0.85" ambient="0.30 0.30 0.32" specular="0.35 0.35 0.35" />
+        <map znear="0.01" zfar="100" />
+    </visual>
+
+    <worldbody>
+
+        <!-- ========================================================
+             LIGHTING
+             ======================================================== -->
+        <light
+            name="key_light"
+            pos="4 -6 10"
+            dir="-0.25 0.35 -1"
+            diffuse="0.90 0.90 0.90"
+            specular="0.25 0.25 0.25"
+        />
+
+        <light
+            name="fill_light"
+            pos="-6 3 7"
+            dir="0.35 -0.20 -1"
+            diffuse="0.45 0.50 0.60"
+            specular="0.10 0.10 0.10"
+        />
+
+        <!-- ========================================================
+             CLEAN GROUND / ROAD ENVIRONMENT
+             All environment geoms are VISUAL ONLY:
+             contype=0 and conaffinity=0.
+             ======================================================== -->
+
+        <!-- Large ground slab -->
+        <geom
+            name="environment_ground"
+            type="box"
+            pos="0 0 -0.06"
+            size="20 20 0.06"
+            material="ground_mat"
+            contype="0"
+            conaffinity="0"
+        />
+
+        <!-- Four-way intersection: two perpendicular road slabs -->
+        <geom
+            name="road_horizontal"
+            type="box"
+            pos="0 0 0.005"
+            size="20 3.2 0.015"
+            material="road_mat"
+            contype="0"
+            conaffinity="0"
+        />
+
+        <geom
+            name="road_vertical"
+            type="box"
+            pos="0 0 0.006"
+            size="3.2 20 0.015"
+            material="road_mat"
+            contype="0"
+            conaffinity="0"
+        />
+
+        <!-- Road edge / sidewalk strips -->
+        <geom name="sidewalk_n" type="box" pos="0 3.65 0.02" size="20 0.40 0.02" material="sidewalk_mat" contype="0" conaffinity="0" />
+        <geom name="sidewalk_s" type="box" pos="0 -3.65 0.02" size="20 0.40 0.02" material="sidewalk_mat" contype="0" conaffinity="0" />
+        <geom name="sidewalk_e" type="box" pos="3.65 0 0.02" size="0.40 20 0.02" material="sidewalk_mat" contype="0" conaffinity="0" />
+        <geom name="sidewalk_w" type="box" pos="-3.65 0 0.02" size="0.40 20 0.02" material="sidewalk_mat" contype="0" conaffinity="0" />
+
+        <!-- Dashed center markings on the four road approaches -->
+        <geom name="lane_h1" type="box" pos="-12 0 0.026" size="1.4 0.045 0.006" material="lane_mat" contype="0" conaffinity="0" />
+        <geom name="lane_h2" type="box" pos="-8 0 0.026" size="1.4 0.045 0.006" material="lane_mat" contype="0" conaffinity="0" />
+        <geom name="lane_h3" type="box" pos="-4 0 0.026" size="1.4 0.045 0.006" material="lane_mat" contype="0" conaffinity="0" />
+        <geom name="lane_h4" type="box" pos="4 0 0.026" size="1.4 0.045 0.006" material="lane_mat" contype="0" conaffinity="0" />
+        <geom name="lane_h5" type="box" pos="8 0 0.026" size="1.4 0.045 0.006" material="lane_mat" contype="0" conaffinity="0" />
+        <geom name="lane_h6" type="box" pos="12 0 0.026" size="1.4 0.045 0.006" material="lane_mat" contype="0" conaffinity="0" />
+
+        <geom name="lane_v1" type="box" pos="0 -12 0.026" size="0.045 1.4 0.006" material="lane_mat" contype="0" conaffinity="0" />
+        <geom name="lane_v2" type="box" pos="0 -8 0.026" size="0.045 1.4 0.006" material="lane_mat" contype="0" conaffinity="0" />
+        <geom name="lane_v3" type="box" pos="0 -4 0.026" size="0.045 1.4 0.006" material="lane_mat" contype="0" conaffinity="0" />
+        <geom name="lane_v4" type="box" pos="0 4 0.026" size="0.045 1.4 0.006" material="lane_mat" contype="0" conaffinity="0" />
+        <geom name="lane_v5" type="box" pos="0 8 0.026" size="0.045 1.4 0.006" material="lane_mat" contype="0" conaffinity="0" />
+        <geom name="lane_v6" type="box" pos="0 12 0.026" size="0.045 1.4 0.006" material="lane_mat" contype="0" conaffinity="0" />
+
+        <!-- Intersection stop lines -->
+        <geom name="stop_n" type="box" pos="0 2.15 0.028" size="2.6 0.035 0.007" material="lane_mat" contype="0" conaffinity="0" />
+        <geom name="stop_s" type="box" pos="0 -2.15 0.028" size="2.6 0.035 0.007" material="lane_mat" contype="0" conaffinity="0" />
+        <geom name="stop_e" type="box" pos="2.15 0 0.028" size="0.035 2.6 0.007" material="lane_mat" contype="0" conaffinity="0" />
+        <geom name="stop_w" type="box" pos="-2.15 0 0.028" size="0.035 2.6 0.007" material="lane_mat" contype="0" conaffinity="0" />
+
+        <!-- ========================================================
+             SCATTERED LOW-POLY BLOCKS / BUILDINGS
+             ======================================================== -->
+        <geom name="block_1" type="box" pos="7.5 7.0 1.10" size="1.4 1.2 1.10" material="block_a_mat" contype="0" conaffinity="0" />
+        <geom name="block_2" type="box" pos="10.5 8.5 0.65" size="1.0 1.3 0.65" material="block_b_mat" contype="0" conaffinity="0" />
+        <geom name="block_3" type="box" pos="-7.5 7.2 0.80" size="1.5 1.0 0.80" material="block_c_mat" contype="0" conaffinity="0" />
+        <geom name="block_4" type="box" pos="-10.0 9.0 1.35" size="1.0 1.1 1.35" material="block_d_mat" contype="0" conaffinity="0" />
+        <geom name="block_5" type="box" pos="8.5 -7.5 0.90" size="1.2 1.5 0.90" material="block_b_mat" contype="0" conaffinity="0" />
+        <geom name="block_6" type="box" pos="-8.0 -7.5 1.15" size="1.5 1.1 1.15" material="block_a_mat" contype="0" conaffinity="0" />
+        <geom name="block_7" type="box" pos="-11.0 -10.0 0.55" size="1.0 1.0 0.55" material="block_c_mat" contype="0" conaffinity="0" />
+        <geom name="block_8" type="box" pos="11.0 -10.0 1.00" size="1.0 1.4 1.00" material="block_d_mat" contype="0" conaffinity="0" />
+
+        <!-- Smaller scattered obstacles / crates -->
+        <geom name="crate_1" type="box" pos="5.2 5.0 0.35" size="0.45 0.45 0.35" material="block_b_mat" contype="0" conaffinity="0" />
+        <geom name="crate_2" type="box" pos="-5.4 5.4 0.25" size="0.55 0.35 0.25" material="block_c_mat" contype="0" conaffinity="0" />
+        <geom name="crate_3" type="box" pos="5.0 -5.2 0.30" size="0.40 0.60 0.30" material="block_d_mat" contype="0" conaffinity="0" />
+        <geom name="crate_4" type="box" pos="-5.5 -5.0 0.40" size="0.60 0.40 0.40" material="block_a_mat" contype="0" conaffinity="0" />
+
+        <!-- ========================================================
+             STATIC LOW-POLY CARS
+             ======================================================== -->
+
+        <!-- Car 1: north-east approach -->
+        <body name="car_1_visual" pos="7.0 2.0 0.34">
+            <geom name="car1_body" type="box" size="0.90 0.42 0.18" material="car_body_mat" contype="0" conaffinity="0" />
+            <geom name="car1_cabin" type="box" pos="0 0 0.24" size="0.48 0.34 0.16" material="car_glass_mat" contype="0" conaffinity="0" />
+            <geom name="car1_wheel_fl" type="cylinder" pos="-0.55 -0.45 -0.12" quat="0.7071 0.7071 0 0" size="0.18 0.07" material="wheel_mat" contype="0" conaffinity="0" />
+            <geom name="car1_wheel_fr" type="cylinder" pos="0.55 -0.45 -0.12" quat="0.7071 0.7071 0 0" size="0.18 0.07" material="wheel_mat" contype="0" conaffinity="0" />
+            <geom name="car1_wheel_rl" type="cylinder" pos="-0.55 0.45 -0.12" quat="0.7071 0.7071 0 0" size="0.18 0.07" material="wheel_mat" contype="0" conaffinity="0" />
+            <geom name="car1_wheel_rr" type="cylinder" pos="0.55 0.45 -0.12" quat="0.7071 0.7071 0 0" size="0.18 0.07" material="wheel_mat" contype="0" conaffinity="0" />
+        </body>
+
+        <!-- Car 2: south-west approach -->
+        <body name="car_2_visual" pos="-7.0 -2.0 0.34" quat="0.7071 0 0 0.7071">
+            <geom name="car2_body" type="box" size="0.90 0.42 0.18" material="car_body_2_mat" contype="0" conaffinity="0" />
+            <geom name="car2_cabin" type="box" pos="0 0 0.24" size="0.48 0.34 0.16" material="car_glass_mat" contype="0" conaffinity="0" />
+            <geom name="car2_wheel_fl" type="cylinder" pos="-0.55 -0.45 -0.12" quat="0.7071 0.7071 0 0" size="0.18 0.07" material="wheel_mat" contype="0" conaffinity="0" />
+            <geom name="car2_wheel_fr" type="cylinder" pos="0.55 -0.45 -0.12" quat="0.7071 0.7071 0 0" size="0.18 0.07" material="wheel_mat" contype="0" conaffinity="0" />
+            <geom name="car2_wheel_rl" type="cylinder" pos="-0.55 0.45 -0.12" quat="0.7071 0.7071 0 0" size="0.18 0.07" material="wheel_mat" contype="0" conaffinity="0" />
+            <geom name="car2_wheel_rr" type="cylinder" pos="0.55 0.45 -0.12" quat="0.7071 0.7071 0 0" size="0.18 0.07" material="wheel_mat" contype="0" conaffinity="0" />
+        </body>
+
+        <!-- Car 3: east side -->
+        <body name="car_3_visual" pos="2.0 8.0 0.34" quat="0.7071 0 0 0.7071">
+            <geom name="car3_body" type="box" size="0.90 0.42 0.18" material="block_c_mat" contype="0" conaffinity="0" />
+            <geom name="car3_cabin" type="box" pos="0 0 0.24" size="0.48 0.34 0.16" material="car_glass_mat" contype="0" conaffinity="0" />
+            <geom name="car3_wheel_fl" type="cylinder" pos="-0.55 -0.45 -0.12" quat="0.7071 0.7071 0 0" size="0.18 0.07" material="wheel_mat" contype="0" conaffinity="0" />
+            <geom name="car3_wheel_fr" type="cylinder" pos="0.55 -0.45 -0.12" quat="0.7071 0.7071 0 0" size="0.18 0.07" material="wheel_mat" contype="0" conaffinity="0" />
+            <geom name="car3_wheel_rl" type="cylinder" pos="-0.55 0.45 -0.12" quat="0.7071 0.7071 0 0" size="0.18 0.07" material="wheel_mat" contype="0" conaffinity="0" />
+            <geom name="car3_wheel_rr" type="cylinder" pos="0.55 0.45 -0.12" quat="0.7071 0.7071 0 0" size="0.18 0.07" material="wheel_mat" contype="0" conaffinity="0" />
+        </body>
+
+        <!-- ========================================================
+             LANDING / ATTITUDE REFERENCE PAD
+             ======================================================== -->
+        <geom
+            name="landing_pad"
+            type="cylinder"
+            pos="-6 1.0 0.035"
+            size="1.5 0.025"
+            material="pad_mat"
+            contype="0"
+            conaffinity="0"
+        />
+        <geom name="pad_cross_x" type="box" pos="-6 1.0 0.065" size="0.75 0.08 0.01" material="lane_mat" contype="0" conaffinity="0" />
+        <geom name="pad_cross_y" type="box" pos="-6 1.0 0.065" size="0.08 0.75 0.01" material="lane_mat" contype="0" conaffinity="0" />
+
+        <!-- Safety barriers -->
+        <geom name="barrier_1" type="box" pos="4.8 2.9 0.35" size="0.70 0.12 0.35" material="barrier_mat" contype="0" conaffinity="0" />
+        <geom name="barrier_2" type="box" pos="5.0 -2.9 0.35" size="0.70 0.12 0.35" material="barrier_mat" contype="0" conaffinity="0" />
+        <geom name="barrier_3" type="box" pos="-4.8 2.9 0.35" size="0.70 0.12 0.35" material="barrier_mat" contype="0" conaffinity="0" />
+        <geom name="barrier_4" type="box" pos="-5.0 -2.9 0.35" size="0.70 0.12 0.35" material="barrier_mat" contype="0" conaffinity="0" />
+
+        <!-- ========================================================
+             QUADROTOR
+             PHYSICS-RELATED ELEMENTS BELOW ARE PRESERVED.
+             Original mass, inertia, freejoint, and timestep/gravity
+             remain unchanged.
+             ======================================================== -->
+        <body name="quadrotor" pos="0 0 1">
+
+            <freejoint/>
+
+            <!-- EXACT inertia used in the original model -->
+            <inertial
+                pos="0 0 0"
+                mass="1.0"
+                diaginertia="0.00065 0.00065 0.0012"
+            />
+
+            <!-- ORIGINAL CENTRAL BODY: unchanged physical definition -->
+            <geom
+                name="body"
+                type="box"
+                size="0.25 0.25 0.05"
+                density="0"
+                rgba="0.08 0.10 0.13 1"
+            />
+
+            <!-- ORIGINAL X ARM -->
+            <geom
+                name="arm_x"
+                type="capsule"
+                fromto="-0.45 0 0 0.45 0 0"
+                size="0.025"
+                density="0"
+                rgba="0.32 0.35 0.40 1"
+            />
+
+            <!-- ORIGINAL Y ARM -->
+            <geom
+                name="arm_y"
+                type="capsule"
+                fromto="0 -0.45 0 0 0.45 0"
+                size="0.025"
+                density="0"
+                rgba="0.32 0.35 0.40 1"
+            />
+
+            <!-- ORIGINAL ROTORS -->
+            <geom name="rotor1" type="cylinder" pos="0.45 0 0.03" size="0.08 0.01" density="0" rgba="0.03 0.04 0.05 1" />
+            <geom name="rotor2" type="cylinder" pos="-0.45 0 0.03" size="0.08 0.01" density="0" rgba="0.03 0.04 0.05 1" />
+            <geom name="rotor3" type="cylinder" pos="0 0.45 0.03" size="0.08 0.01" density="0" rgba="0.03 0.04 0.05 1" />
+            <geom name="rotor4" type="cylinder" pos="0 -0.45 0.03" size="0.08 0.01" density="0" rgba="0.03 0.04 0.05 1" />
+
+            <!-- ====================================================
+                 REALISTIC VISUAL DRONE DETAILS
+                 VISUAL ONLY: density is omitted only because these
+                 geoms explicitly use contype=0/conaffinity=0.
+                 The original inertial model above remains untouched.
+                 ==================================================== -->
+
+            <!-- Lower aerodynamic body: flattened ellipsoid -->
+            <geom
+                name="realistic_lower_body"
+                type="ellipsoid"
+                pos="0 0 0.015"
+                size="0.255 0.145 0.055"
+                material="drone_body_mat"
+                contype="0"
+                conaffinity="0"
+            />
+
+            <!-- Raised top shell for a compact consumer-drone silhouette -->
+            <geom
+                name="realistic_top_shell"
+                type="ellipsoid"
+                pos="0 0 0.065"
+                size="0.205 0.125 0.045"
+                material="drone_panel_mat"
+                contype="0"
+                conaffinity="0"
+            />
+
+            <!-- Central top spine / battery cover -->
+            <geom
+                name="top_battery_cover"
+                type="box"
+                pos="0 0.015 0.097"
+                size="0.105 0.070 0.012"
+                material="drone_body_mat"
+                contype="0"
+                conaffinity="0"
+            />
+
+            <!-- Decorative top panel -->
+            <geom
+                name="top_panel"
+                type="box"
+                pos="0 0.055 0.110"
+                size="0.075 0.045 0.004"
+                material="drone_metal_mat"
+                contype="0"
+                conaffinity="0"
+            />
+
+            <!-- Front camera/gimbal assembly -->
+            <geom
+                name="camera_gimbal"
+                type="capsule"
+                fromto="0 -0.105 -0.015 0 -0.205 -0.015"
+                size="0.025"
+                material="drone_metal_mat"
+                contype="0"
+                conaffinity="0"
+            />
+            <geom
+                name="camera_housing"
+                type="ellipsoid"
+                pos="0 -0.205 -0.020"
+                size="0.075 0.050 0.060"
+                material="drone_body_mat"
+                contype="0"
+                conaffinity="0"
+            />
+            <geom
+                name="camera_lens"
+                type="sphere"
+                pos="0 -0.252 -0.020"
+                size="0.033"
+                material="drone_glass_mat"
+                contype="0"
+                conaffinity="0"
+            />
+            <geom
+                name="camera_lens_ring"
+                type="cylinder"
+                pos="0 -0.248 -0.020"
+                quat="0.7071 0 0 0.7071"
+                size="0.041 0.008"
+                material="drone_metal_mat"
+                contype="0"
+                conaffinity="0"
+            />
+
+            <!-- Visual arm sleeves following the original four rotor locations -->
+            <geom
+                name="arm_visual_x_pos"
+                type="capsule"
+                fromto="0.10 0 0.030 0.47 0 0.045"
+                size="0.034"
+                material="drone_body_mat"
+                contype="0"
+                conaffinity="0"
+            />
+            <geom
+                name="arm_visual_x_neg"
+                type="capsule"
+                fromto="-0.10 0 0.030 -0.47 0 0.045"
+                size="0.034"
+                material="drone_body_mat"
+                contype="0"
+                conaffinity="0"
+            />
+            <geom
+                name="arm_visual_y_pos"
+                type="capsule"
+                fromto="0 0.10 0.030 0 0.47 0.045"
+                size="0.034"
+                material="drone_body_mat"
+                contype="0"
+                conaffinity="0"
+            />
+            <geom
+                name="arm_visual_y_neg"
+                type="capsule"
+                fromto="0 -0.10 0.030 0 -0.47 0.045"
+                size="0.034"
+                material="drone_body_mat"
+                contype="0"
+                conaffinity="0"
+            />
+
+            <!-- Slim metallic strips on the arms -->
+            <geom
+                name="arm_cap_x_pos"
+                type="capsule"
+                fromto="0.14 0 0.060 0.43 0 0.060"
+                size="0.010"
+                material="drone_metal_mat"
+                contype="0"
+                conaffinity="0"
+            />
+            <geom
+                name="arm_cap_x_neg"
+                type="capsule"
+                fromto="-0.14 0 0.060 -0.43 0 0.060"
+                size="0.010"
+                material="drone_metal_mat"
+                contype="0"
+                conaffinity="0"
+            />
+            <geom
+                name="arm_cap_y_pos"
+                type="capsule"
+                fromto="0 0.14 0.060 0 0.43 0.060"
+                size="0.010"
+                material="drone_metal_mat"
+                contype="0"
+                conaffinity="0"
+            />
+            <geom
+                name="arm_cap_y_neg"
+                type="capsule"
+                fromto="0 -0.14 0.060 0 -0.43 0.060"
+                size="0.010"
+                material="drone_metal_mat"
+                contype="0"
+                conaffinity="0"
+            />
+
+            <!-- Realistic motor pods -->
+            <geom name="motor_visual_1" type="cylinder" pos="0.45 0 0.055" size="0.060 0.035" material="drone_metal_mat" contype="0" conaffinity="0" />
+            <geom name="motor_visual_2" type="cylinder" pos="-0.45 0 0.055" size="0.060 0.035" material="drone_metal_mat" contype="0" conaffinity="0" />
+            <geom name="motor_visual_3" type="cylinder" pos="0 0.45 0.055" size="0.060 0.035" material="drone_metal_mat" contype="0" conaffinity="0" />
+            <geom name="motor_visual_4" type="cylinder" pos="0 -0.45 0.055" size="0.060 0.035" material="drone_metal_mat" contype="0" conaffinity="0" />
+
+            <!-- Motor caps -->
+            <geom name="motor_cap_1" type="cylinder" pos="0.45 0 0.095" size="0.043 0.010" material="drone_body_mat" contype="0" conaffinity="0" />
+            <geom name="motor_cap_2" type="cylinder" pos="-0.45 0 0.095" size="0.043 0.010" material="drone_body_mat" contype="0" conaffinity="0" />
+            <geom name="motor_cap_3" type="cylinder" pos="0 0.45 0.095" size="0.043 0.010" material="drone_body_mat" contype="0" conaffinity="0" />
+            <geom name="motor_cap_4" type="cylinder" pos="0 -0.45 0.095" size="0.043 0.010" material="drone_body_mat" contype="0" conaffinity="0" />
+
+            <!-- Thin translucent propeller blades. These are visual only. -->
+            <geom name="prop_blade_1a" type="box" pos="0.45 0 0.115" size="0.105 0.008 0.003" material="prop_mat" contype="0" conaffinity="0" />
+            <geom name="prop_blade_1b" type="box" pos="0.45 0 0.116" size="0.008 0.105 0.003" material="prop_mat" contype="0" conaffinity="0" />
+            <geom name="prop_blade_2a" type="box" pos="-0.45 0 0.115" size="0.105 0.008 0.003" material="prop_mat" contype="0" conaffinity="0" />
+            <geom name="prop_blade_2b" type="box" pos="-0.45 0 0.116" size="0.008 0.105 0.003" material="prop_mat" contype="0" conaffinity="0" />
+            <geom name="prop_blade_3a" type="box" pos="0 0.45 0.115" size="0.105 0.008 0.003" material="prop_mat" contype="0" conaffinity="0" />
+            <geom name="prop_blade_3b" type="box" pos="0 0.45 0.116" size="0.008 0.105 0.003" material="prop_mat" contype="0" conaffinity="0" />
+            <geom name="prop_blade_4a" type="box" pos="0 -0.45 0.115" size="0.105 0.008 0.003" material="prop_mat" contype="0" conaffinity="0" />
+            <geom name="prop_blade_4b" type="box" pos="0 -0.45 0.116" size="0.008 0.105 0.003" material="prop_mat" contype="0" conaffinity="0" />
+
+            <!-- Central propeller hubs -->
+            <geom name="hub_1" type="cylinder" pos="0.45 0 0.120" size="0.018 0.010" material="drone_metal_mat" contype="0" conaffinity="0" />
+            <geom name="hub_2" type="cylinder" pos="-0.45 0 0.120" size="0.018 0.010" material="drone_metal_mat" contype="0" conaffinity="0" />
+            <geom name="hub_3" type="cylinder" pos="0 0.45 0.120" size="0.018 0.010" material="drone_metal_mat" contype="0" conaffinity="0" />
+            <geom name="hub_4" type="cylinder" pos="0 -0.45 0.120" size="0.018 0.010" material="drone_metal_mat" contype="0" conaffinity="0" />
+
+            <!-- Landing legs and feet -->
+            <geom name="leg_front_left" type="capsule" fromto="-0.14 -0.10 -0.035 -0.20 -0.17 -0.145" size="0.014" material="drone_metal_mat" contype="0" conaffinity="0" />
+            <geom name="leg_front_right" type="capsule" fromto="0.14 -0.10 -0.035 0.20 -0.17 -0.145" size="0.014" material="drone_metal_mat" contype="0" conaffinity="0" />
+            <geom name="leg_rear_left" type="capsule" fromto="-0.14 0.10 -0.035 -0.20 0.17 -0.145" size="0.014" material="drone_metal_mat" contype="0" conaffinity="0" />
+            <geom name="leg_rear_right" type="capsule" fromto="0.14 0.10 -0.035 0.20 0.17 -0.145" size="0.014" material="drone_metal_mat" contype="0" conaffinity="0" />
+            <geom name="foot_front_left" type="capsule" fromto="-0.20 -0.17 -0.145 -0.24 -0.17 -0.145" size="0.012" material="drone_body_mat" contype="0" conaffinity="0" />
+            <geom name="foot_front_right" type="capsule" fromto="0.20 -0.17 -0.145 0.24 -0.17 -0.145" size="0.012" material="drone_body_mat" contype="0" conaffinity="0" />
+            <geom name="foot_rear_left" type="capsule" fromto="-0.20 0.17 -0.145 -0.24 0.17 -0.145" size="0.012" material="drone_body_mat" contype="0" conaffinity="0" />
+            <geom name="foot_rear_right" type="capsule" fromto="0.20 0.17 -0.145 0.24 0.17 -0.145" size="0.012" material="drone_body_mat" contype="0" conaffinity="0" />
+
+            <!-- Navigation LEDs -->
+            <geom name="led_front" type="sphere" pos="0 -0.235 0.045" size="0.012" material="drone_led_mat" contype="0" conaffinity="0" />
+            <geom name="led_left" type="sphere" pos="-0.235 0 0.070" size="0.014" material="drone_led_mat" contype="0" conaffinity="0" />
+            <geom name="led_right" type="sphere" pos="0.235 0 0.070" size="0.014" material="drone_led_mat" contype="0" conaffinity="0" />
+            <geom name="led_rear" type="sphere" pos="0 0.235 0.070" size="0.010" material="drone_led_mat" contype="0" conaffinity="0" />
+
+        </body>
+
+    </worldbody>
+
+</mujoco>

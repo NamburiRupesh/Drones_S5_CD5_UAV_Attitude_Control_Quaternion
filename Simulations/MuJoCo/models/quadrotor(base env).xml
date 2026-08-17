@@ -1,0 +1,94 @@
+<mujoco model="quaternion_quadrotor">
+
+    <option
+        timestep="0.0002"
+        gravity="0 0 0"
+    />
+
+    <worldbody>
+
+        <body name="quadrotor" pos="0 0 1">
+
+            <freejoint/>
+
+            <!-- EXACT inertia used in the paper -->
+            <inertial
+                pos="0 0 0"
+                mass="1.0"
+                diaginertia="0.00065 0.00065 0.0012"
+            />
+
+            <!-- Central body -->
+            <geom
+                name="body"
+                type="box"
+                size="0.25 0.25 0.05"
+                density="0"
+                rgba="0.15 0.15 0.15 1"
+            />
+
+            <!-- X arm -->
+            <geom
+                name="arm_x"
+                type="capsule"
+                fromto="-0.45 0 0 0.45 0 0"
+                size="0.025"
+                density="0"
+                rgba="0.3 0.3 0.3 1"
+            />
+
+            <!-- Y arm -->
+            <geom
+                name="arm_y"
+                type="capsule"
+                fromto="0 -0.45 0 0 0.45 0"
+                size="0.025"
+                density="0"
+                rgba="0.3 0.3 0.3 1"
+            />
+
+            <!-- Rotor 1 -->
+            <geom
+                name="rotor1"
+                type="cylinder"
+                pos="0.45 0 0.03"
+                size="0.08 0.01"
+                density="0"
+                rgba="0.1 0.1 0.1 1"
+            />
+
+            <!-- Rotor 2 -->
+            <geom
+                name="rotor2"
+                type="cylinder"
+                pos="-0.45 0 0.03"
+                size="0.08 0.01"
+                density="0"
+                rgba="0.1 0.1 0.1 1"
+            />
+
+            <!-- Rotor 3 -->
+            <geom
+                name="rotor3"
+                type="cylinder"
+                pos="0 0.45 0.03"
+                size="0.08 0.01"
+                density="0"
+                rgba="0.1 0.1 0.1 1"
+            />
+
+            <!-- Rotor 4 -->
+            <geom
+                name="rotor4"
+                type="cylinder"
+                pos="0 -0.45 0.03"
+                size="0.08 0.01"
+                density="0"
+                rgba="0.1 0.1 0.1 1"
+            />
+
+        </body>
+
+    </worldbody>
+
+</mujoco>
