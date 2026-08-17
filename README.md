@@ -124,16 +124,14 @@ p=
 p_w \\
 p_x \\
 p_y \\
-p_z \
-end{bmatrix},
+p_z \end{bmatrix},
 \qquad
 q=
 \begin{bmatrix}
 q_w \\ 
 q_x \\
 q_y \\
-q_z \
-end{bmatrix},
+q_z \end{bmatrix},
 $$
 
 the quaternion product is
