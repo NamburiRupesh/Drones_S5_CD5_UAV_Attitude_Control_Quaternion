@@ -321,7 +321,12 @@ Equivalently,
 
 $$
 \dot q=\frac{1}{2}\,q\otimes
-\begin{bmatrix}0\\\omega_x\\\omega_y\\\omega_z\end{bmatrix}
+\begin{bmatrix}
+0 \\
+\omega_x \\
+\omega_y \\
+\omega_z
+\end{bmatrix}
 $$
 
 for the adopted multiplication/order convention.
@@ -329,7 +334,11 @@ for the adopted multiplication/order convention.
 The project propagates the quaternion state using the simulated angular velocity. The initial attitude is
 
 $$
-q(0)=\begin{bmatrix}1\\0\\0\\0\end{bmatrix}.
+q(0)=\begin{bmatrix}
+1 \\
+0 \\
+0 \\
+0 \end{bmatrix}.
 $$
 
 ## 8. P2 Quaternion Controller
