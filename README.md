@@ -277,31 +277,6 @@ $$
 
 where $I$ is the inertia matrix, $\omega=[\omega_x,\omega_y,\omega_z]^T$ is body angular velocity, and $\tau=[\tau_x,\tau_y,\tau_z]^T$ is control torque.
 
-### Current Simulation Model
-
-The current MATLAB/Simulink model initially uses the simplified rotational dynamics
-
-$$
-I\dot{\omega}=\tau
-$$
-
-and therefore
-
-$$
-\dot{\omega}=I^{-1}\tau.
-$$
-
-The current inertia matrix is
-
-$$
-I=\begin{bmatrix}
-1.4\times10^{-5}&0&0\\
-0&1.4\times10^{-5}&0\\
-0&0&2.2\times10^{-5}
-\end{bmatrix}.
-$$
-
-The full nonlinear gyroscopic term from the base-paper model can be incorporated as the simulation is further developed.
 
 ## 7. Quaternion Kinematics
 
