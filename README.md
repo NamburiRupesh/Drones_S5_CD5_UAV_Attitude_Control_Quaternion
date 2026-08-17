@@ -367,23 +367,3 @@ q_{err,z}
 $$
 
 where $P_q$ is the quaternion-error gain and $P_\omega$ is the angular-rate feedback gain. The controller operates directly on the quaternion error and angular velocity.
-
-### Current Controller Parameters
-
-The current MATLAB Function implementation follows the same control structure:
-
-```matlab
-% Scalar-first quaternion convention: [qw; qx; qy; qz]
-q_m_inv = [q_m(1); -q_m(2); -q_m(3); -q_m(4)];
-q_error = quatMultiply(q_ref, q_m_inv);
-q_error_vec = q_error(2:4);
-tau = -Pq*q_error_vec - Pomega*omega;
-```
-
-Current simulation gains:
-
-$$
-P_q=1.0,\qquad P_\omega=0.1.
-$$
-
-These gains are simulation parameters and may be tuned further during the project.
