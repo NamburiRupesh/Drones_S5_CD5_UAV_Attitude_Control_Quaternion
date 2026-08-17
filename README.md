@@ -387,6 +387,3 @@ P_q=1.0,\qquad P_\omega=0.1.
 $$
 
 These gains are simulation parameters and may be tuned further during the project.
-
-
-8. MuJoCo Documentation: https://mujoco.readthedocs.io/
