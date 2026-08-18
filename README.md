@@ -294,7 +294,7 @@ $$
 Equivalently,
 
 $$
-\dot q=\frac{1}{2}\,q\otimes
+\dot q=\frac{1}{2}\.q\otimes
 \begin{bmatrix}
 0 \\
 \omega_x \\
