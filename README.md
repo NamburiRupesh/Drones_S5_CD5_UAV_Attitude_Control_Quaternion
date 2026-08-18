@@ -366,6 +366,23 @@ A combined attitude command was applied to the UAV with the following reference 
 | Pitch | 30° |
 | Yaw | 30° |
 
+Using the ZYX (Yaw–Pitch–Roll) Euler-angle convention, these reference angles are converted into the desired quaternion:
+
+$$
+q_{ref} = \begin{bmatrix}
+q_w \\
+q_x \\
+q_y \\
+q_z \end{bmatrix}
+= \begin{bmatrix}
+0.7071 \\
+0.6124 \\
+0.3536 \\
+0 \end{bmatrix}
+$$
+
+This reference quaternion is supplied to the P² attitude controller, which compares it with the measured quaternion to generate the required control torque.
+
 The corresponding Simulink Scope output is shown below.
 
 ![Simulink Scope](Images/scope.png)
