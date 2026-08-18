@@ -7,11 +7,6 @@ import mujoco
 import mujoco.viewer
 import matplotlib.pyplot as plt
 
-
-# ============================================================
-# PROJECT ROOT
-# ============================================================
-
 PROJECT_ROOT = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))
 )
@@ -19,48 +14,27 @@ PROJECT_ROOT = os.path.dirname(
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-
-# ============================================================
-# USER SETTINGS
-# ============================================================
-
-# ------------------------------------------------------------
 # Desired attitude
-# ------------------------------------------------------------
 
 ROLL_DEG = 30.0
 PITCH_DEG = 60.0
 YAW_DEG = 90.0
 
-
-# ------------------------------------------------------------
 # Quaternion P² controller gains
-#
-# These are intentionally gentle for this MuJoCo model.
-# ------------------------------------------------------------
 
 Pq = 0.01
 Pw = 0.005
 
-
-# ------------------------------------------------------------
-# Simulation
-# ------------------------------------------------------------
+# Simulation Metrics
 
 SIM_TIME = 10.0
 DT = 0.002
 
-
-# ------------------------------------------------------------
-# Torque saturation
-# ------------------------------------------------------------
+# Torque saturation Limit
 
 TORQUE_LIMIT = 0.01
 
-
-# ============================================================
-# XML PATH
-# ============================================================
+# XML Model Path
 
 XML_PATH = os.path.join(
     PROJECT_ROOT,
@@ -75,10 +49,7 @@ if not os.path.exists(XML_PATH):
         f"Expected:\n{XML_PATH}\n"
     )
 
-
-# ============================================================
-# QUATERNION FUNCTIONS
-# ============================================================
+# Quaternion Functions
 
 def normalize_quaternion(q):
     """
@@ -111,13 +82,6 @@ def quaternion_conjugate(q):
 
 
 def quaternion_multiply(q1, q2):
-    """
-    Quaternion multiplication.
-
-    Quaternion format:
-
-        q = [w, x, y, z]
-    """
 
     w1, x1, y1, z1 = q1
     w2, x2, y2, z2 = q2
@@ -132,16 +96,10 @@ def quaternion_multiply(q1, q2):
         w1*z2 + x1*y2 - y1*x2 + z1*w2
     ])
 
-
-# ============================================================
-# RPY -> QUATERNION
-# ============================================================
+# RPY -> Quaternion Conversion
 
 def rpy_to_quaternion(roll, pitch, yaw):
-    """
-    Convert roll, pitch, yaw [rad]
-    to quaternion [w, x, y, z].
-    """
+    """Convert roll, pitch, yaw from [rad] to quaternion [w, x, y, z]"""
 
     cr = np.cos(roll / 2.0)
     sr = np.sin(roll / 2.0)
@@ -181,24 +139,16 @@ def rpy_to_quaternion(roll, pitch, yaw):
 
     return normalize_quaternion(q)
 
-
-# ============================================================
-# QUATERNION -> RPY
-# ============================================================
+# Quaternion -> RPY Conversion
 
 def quaternion_to_rpy(q):
-    """
-    Convert quaternion [w, x, y, z]
-    to roll, pitch, yaw [rad].
-    """
+    """Convert quaternion [w, x, y, z] to roll, pitch, yaw [rad]"""
 
     q = normalize_quaternion(q)
 
     qw, qx, qy, qz = q
 
-    # --------------------------------------------------------
     # Roll
-    # --------------------------------------------------------
 
     sinr_cosp = 2.0 * (
         qw * qx +
@@ -214,11 +164,7 @@ def quaternion_to_rpy(q):
         sinr_cosp,
         cosr_cosp
     )
-
-    # --------------------------------------------------------
     # Pitch
-    # --------------------------------------------------------
-
     sinp = 2.0 * (
         qw * qy -
         qz * qx
@@ -233,11 +179,7 @@ def quaternion_to_rpy(q):
     else:
 
         pitch = np.arcsin(sinp)
-
-    # --------------------------------------------------------
     # Yaw
-    # --------------------------------------------------------
-
     siny_cosp = 2.0 * (
         qw * qz +
         qx * qy
@@ -259,18 +201,11 @@ def quaternion_to_rpy(q):
         yaw
     ])
 
-
-# ============================================================
-# QUATERNION ATTITUDE ERROR
-# ============================================================
+# Quaternion Attitude Error
 
 def compute_quaternion_error(q_ref, q_current):
-    """
-    Quaternion attitude error:
-
+    """Quaternion attitude error:
         q_err = q_ref ⊗ conjugate(q_current)
-
-    The vector part is used as the attitude error.
     """
 
     q_ref = normalize_quaternion(q_ref)
@@ -283,12 +218,8 @@ def compute_quaternion_error(q_ref, q_current):
         q_ref,
         quaternion_conjugate(q_current)
     )
-
-    # --------------------------------------------------------
-    # Choose the closest quaternion representation.
-    #
-    # q and -q represent the same physical orientation.
-    # --------------------------------------------------------
+    # Choose the closest quaternion representation
+    # Since q and -q represent the same physical orientation
 
     if q_err[0] < 0.0:
 
@@ -299,27 +230,13 @@ def compute_quaternion_error(q_ref, q_current):
     return q_err, axis_error
 
 
-# ============================================================
 # P² CONTROLLER
-# ============================================================
 
 def compute_control_torque(
     q_ref,
     q_current,
     omega
 ):
-    """
-    Quaternion P² attitude controller.
-
-    IMPORTANT:
-    The sign here has been selected according to the
-    experimentally verified MuJoCo torque convention.
-
-        torque = +Pq * quaternion_error
-                 -Pw * angular_velocity
-
-    Positive roll error therefore produces positive Mx.
-    """
 
     q_error, axis_error = (
         compute_quaternion_error(
@@ -333,18 +250,12 @@ def compute_control_torque(
         dtype=float
     )
 
-    # --------------------------------------------------------
-    # Corrected feedback sign
-    # --------------------------------------------------------
-
     torque = (
         Pq * axis_error
         - Pw * omega
     )
 
-    # --------------------------------------------------------
     # Torque saturation
-    # --------------------------------------------------------
 
     torque = np.clip(
         torque,
@@ -355,9 +266,7 @@ def compute_control_torque(
     return torque, q_error
 
 
-# ============================================================
-# DESIRED ATTITUDE
-# ============================================================
+# Desired Attitude
 
 roll_ref = np.deg2rad(
     ROLL_DEG
@@ -378,10 +287,7 @@ q_ref = rpy_to_quaternion(
     yaw_ref
 )
 
-
-# ============================================================
-# PRINT CONFIGURATION
-# ============================================================
+# Print the Configurations
 
 print()
 print("==============================================")
@@ -439,10 +345,7 @@ print(
 
 print()
 
-
-# ============================================================
-# LOAD MUJOCO
-# ============================================================
+# Load MuJoCo
 
 model = mujoco.MjModel.from_xml_path(
     XML_PATH
@@ -454,10 +357,7 @@ data = mujoco.MjData(
 
 model.opt.timestep = DT
 
-
-# ============================================================
-# FIND QUADROTOR BODY
-# ============================================================
+# Find Quadrotor Body
 
 drone_body_id = mujoco.mj_name2id(
     model,
@@ -479,11 +379,6 @@ print(
 
 print()
 
-
-# ============================================================
-# STORAGE
-# ============================================================
-
 time_history = []
 
 rpy_history = []
@@ -494,20 +389,14 @@ q_history = []
 
 error_history = []
 
-
-# ============================================================
-# INITIALIZE SIMULATION
-# ============================================================
+# Initialize Simulation
 
 mujoco.mj_forward(
     model,
     data
 )
 
-
-# ============================================================
-# OPEN MUJOCO VIEWER
-# ============================================================
+# Open MujoCo Viewer
 
 print("==============================================")
 print(" Opening MuJoCo viewer...")
@@ -543,10 +432,7 @@ print(
 
 print()
 
-
-# ============================================================
-# REAL-TIME MUJOCO SIMULATION
-# ============================================================
+# Real Time MuJoCo Simulation
 
 wall_start = time.perf_counter()
 
@@ -555,27 +441,20 @@ with mujoco.viewer.launch_passive(
     data
 ) as viewer:
 
-    # --------------------------------------------------------
     # Camera setup
-    # --------------------------------------------------------
 
     viewer.cam.distance = 4.0
     viewer.cam.azimuth = 135.0
     viewer.cam.elevation = -20.0
 
-    # --------------------------------------------------------
     # Main simulation loop
-    # --------------------------------------------------------
 
     steps = int(
         SIM_TIME / DT
     )
 
     for step in range(steps):
-
-        # ----------------------------------------------------
         # Stop if viewer was closed
-        # ----------------------------------------------------
 
         if not viewer.is_running():
 
@@ -586,20 +465,13 @@ with mujoco.viewer.launch_passive(
 
             break
 
-        # ----------------------------------------------------
         # Simulation time
-        # ----------------------------------------------------
-
         t = step * DT
 
-        # ----------------------------------------------------
-        # Current quaternion
-        #
+        # Current quaternion is represented in a different format in MuJoCo as follows
         # MuJoCo free-joint qpos:
-        #
         # qpos[0:3] = position
         # qpos[3:7] = quaternion
-        # ----------------------------------------------------
 
         q_current = np.array(
             data.qpos[3:7],
@@ -609,24 +481,17 @@ with mujoco.viewer.launch_passive(
         q_current = normalize_quaternion(
             q_current
         )
-
-        # ----------------------------------------------------
-        # Angular velocity
-        #
-        # Free-joint qvel:
-        #
+        # Angular velocity is represented as follows
+        # Free joint qvel:
         # qvel[0:3] = linear velocity
         # qvel[3:6] = angular velocity
-        # ----------------------------------------------------
 
         omega = np.array(
             data.qvel[3:6],
             dtype=float
         )
 
-        # ----------------------------------------------------
         # Quaternion controller
-        # ----------------------------------------------------
 
         torque, q_error = (
             compute_control_torque(
@@ -636,28 +501,11 @@ with mujoco.viewer.launch_passive(
             )
         )
 
-        # ----------------------------------------------------
-        # Extra safety saturation
-        # ----------------------------------------------------
-
         torque = np.clip(
             torque,
             -TORQUE_LIMIT,
             TORQUE_LIMIT
         )
-
-        # ----------------------------------------------------
-        # IMPORTANT:
-        #
-        # Apply torque to the actual quadrotor body.
-        #
-        # body ID = drone_body_id
-        #
-        # xfrc_applied:
-        #
-        # [0:3] = force
-        # [3:6] = torque
-        # ----------------------------------------------------
 
         data.xfrc_applied[
             drone_body_id,
@@ -669,17 +517,11 @@ with mujoco.viewer.launch_passive(
             3:6
         ] = torque
 
-        # ----------------------------------------------------
         # Convert current attitude to RPY
-        # ----------------------------------------------------
 
         rpy = quaternion_to_rpy(
             q_current
         )
-
-        # ----------------------------------------------------
-        # Store data
-        # ----------------------------------------------------
 
         time_history.append(
             t
@@ -701,24 +543,12 @@ with mujoco.viewer.launch_passive(
             q_error.copy()
         )
 
-        # ----------------------------------------------------
-        # Step MuJoCo
-        # ----------------------------------------------------
-
         mujoco.mj_step(
             model,
             data
         )
 
-        # ----------------------------------------------------
-        # Update viewer
-        # ----------------------------------------------------
-
         viewer.sync()
-
-        # ----------------------------------------------------
-        # Real-time pacing
-        # ----------------------------------------------------
 
         target_wall_time = (
             wall_start + t
@@ -735,10 +565,6 @@ with mujoco.viewer.launch_passive(
                 remaining
             )
 
-
-# ============================================================
-# CONVERT DATA TO NUMPY
-# ============================================================
 
 time_history = np.asarray(
     time_history
@@ -760,10 +586,7 @@ error_history = np.asarray(
     error_history
 )
 
-
-# ============================================================
-# HANDLE EMPTY SIMULATION
-# ============================================================
+# Handling the situation when no simulation happened
 
 if len(time_history) == 0:
 
@@ -774,10 +597,7 @@ if len(time_history) == 0:
 
     sys.exit(0)
 
-
-# ============================================================
-# FINAL ATTITUDE
-# ============================================================
+# Final Attitude
 
 final_rpy = rpy_history[-1]
 
@@ -793,10 +613,7 @@ final_yaw = np.rad2deg(
     final_rpy[2]
 )
 
-
-# ============================================================
-# ATTITUDE ERROR
-# ============================================================
+# Attitude Error
 
 rpy_reference = np.array([
     ROLL_DEG,
@@ -828,10 +645,7 @@ rms_error = np.sqrt(
     )
 )
 
-
-# ============================================================
-# TORQUE STATISTICS
-# ============================================================
+# Torque Statistics
 
 max_torque = np.max(
     np.abs(torque_history),
@@ -839,16 +653,9 @@ max_torque = np.max(
 )
 
 
-# ============================================================
-# FINAL QUATERNION
-# ============================================================
-
 final_q = q_history[-1]
 
-
-# ============================================================
-# RESULTS
-# ============================================================
+# Results
 
 print()
 print("==============================================")
@@ -951,10 +758,7 @@ print()
 
 print("Simulation completed.")
 
-
-# ============================================================
-# PLOT 1 — RPY ATTITUDE TRACKING
-# ============================================================
+# Plot 1 — RPY Attitude Tracking
 
 plt.figure(
     figsize=(10, 8)
@@ -1035,10 +839,7 @@ plt.legend()
 
 plt.tight_layout()
 
-
-# ============================================================
-# PLOT 2 — CONTROL TORQUE
-# ============================================================
+# Plot 2 — Control Torque
 
 plt.figure(
     figsize=(10, 6)
@@ -1091,10 +892,7 @@ plt.legend()
 
 plt.tight_layout()
 
-
-# ============================================================
-# PLOT 3 — QUATERNION RESPONSE
-# ============================================================
+# Plot 3 — Quaternion Response
 
 plt.figure(
     figsize=(10, 8)
@@ -1192,10 +990,5 @@ plt.grid()
 plt.legend()
 
 plt.tight_layout()
-
-
-# ============================================================
-# SHOW PLOTS
-# ============================================================
 
 plt.show()
