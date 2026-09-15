@@ -57,17 +57,31 @@ The proposed project follows this quaternion-based control philosophy and develo
 The project follows the quaternion-space attitude-control methodology presented in the base paper and implements the control loop in simulation. The main stages are:
 
 1. Define the desired roll, pitch, and yaw attitude.
+
 2. Convert the desired attitude into a reference quaternion $q_{ref}$.
+
 3. Obtain the measured quaternion $q_m$ from the simulated UAV attitude.
+
 4. Calculate the quaternion attitude error.
+
 5. Extract the vector part of the quaternion error as the attitude-axis error.
+
 6. Use the P2 controller together with angular velocity feedback to calculate the control torque $\tau$.
+
 7. Apply the torque to the quadrotor rotational dynamics.
+
 8. Propagate angular velocity into quaternion dynamics.
+
 9. Obtain the updated quaternion state.
+
 10. Feed the measured attitude back to the controller.
-11. Convert the quaternion to yaw, pitch, and roll when required for visualization and analysis.
-12. Evaluate the UAV response using MATLAB/Simulink and MuJoCo.
+
+11. Generate smooth UAV trajectories using interpolation techniques.
+12. Linear Interpolation (LERP) is used for generating position trajectories by interpolating between initial and final positions.
+13. For attitude trajectory generation, Spherical Linear Interpolation (SLERP) is used to generate smooth quaternion transitions between different orientations.
+14. Convert the quaternion to yaw, pitch, and roll when required for visualization and analysis.
+15. Evaluate the UAV response using MATLAB/Simulink and MuJoCo.
+
 
 ## 2. Methodology Flow Diagram
 
@@ -84,8 +98,10 @@ flowchart TD
     F --> I[Quaternion Dynamics]
     I --> J[Quaternion State]
     J --> D
-    J --> K[Quaternion to Yaw / Pitch / Roll]
+    J --> K[Quaternion to Yaw Pitch Roll]
     K --> L[UAV 3D Visualization]
+    
+    M[Trajectory Interpolation LERP and SLERP] --> L
 ```
 
 The controller forms the feedback loop using the measured quaternion and angular velocity. The quaternion state is continuously updated through the rotational dynamics and quaternion kinematics.
