@@ -533,7 +533,7 @@ The combination of the quantitative plots and the MuJoCo visualization provides 
 The MuJoCo implementation was extended to support B-spline-based trajectory generation for quadrotor waypoint tracking. This enables the reference path to be represented as a smooth trajectory for the simulated UAV to follow.
 
 <p align="center">
-  <img src="Animations/Mujoco Bspline Spiral.gif"  width="1000">
+  <img src="Animations/Mujoco Bspline Spiralv2.gif">
 </p>
 
 <p align="center">
