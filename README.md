@@ -65,63 +65,9 @@ The proposed project follows this quaternion-based control philosophy and develo
 
 # Methodology
 
-## 1. Overall Methodology
+## 1. Quaternion Mathematical Formulation
 
-The project follows the quaternion-space attitude-control methodology presented in the base paper and implements the control loop in simulation. The main stages are:
-
-1. Define the desired roll, pitch, and yaw attitude.
-
-2. Convert the desired attitude into a reference quaternion $q_{ref}$.
-
-3. Obtain the measured quaternion $q_m$ from the simulated UAV attitude.
-
-4. Calculate the quaternion attitude error.
-
-5. Extract the vector part of the quaternion error as the attitude-axis error.
-
-6. Use the P2 controller together with angular velocity feedback to calculate the control torque $\tau$.
-
-7. Apply the torque to the quadrotor rotational dynamics.
-
-8. Propagate angular velocity into quaternion dynamics.
-
-9. Obtain the updated quaternion state.
-
-10. Feed the measured attitude back to the controller.
-
-11. Generate smooth UAV trajectories using interpolation techniques.
-12. Linear Interpolation (LERP) is used for generating position trajectories by interpolating between initial and final positions.
-13. For attitude trajectory generation, Spherical Linear Interpolation (SLERP) is used to generate smooth quaternion transitions between different orientations.
-14. Convert the quaternion to yaw, pitch, and roll when required for visualization and analysis.
-15. Evaluate the UAV response using MATLAB/Simulink and MuJoCo.
-
-
-## 2. Methodology Flow Diagram
-
-```mermaid
-flowchart TD
-    A[Desired Roll / Pitch / Yaw] --> B[Euler Angle to Quaternion]
-    B --> C[Reference Quaternion q_ref]
-    C --> E[P2 Quaternion Controller]
-    D[Measured Quaternion q_m] --> E
-    F[Angular Velocity omega] --> E
-    E --> G[Control Torque tau]
-    G --> H[Angular Dynamics]
-    H --> F
-    F --> I[Quaternion Dynamics]
-    I --> J[Quaternion State]
-    J --> D
-    J --> K[Quaternion to Yaw Pitch Roll]
-    K --> L[UAV 3D Visualization]
-    
-    M[Trajectory Interpolation LERP and SLERP] --> L
-```
-
-The controller forms the feedback loop using the measured quaternion and angular velocity. The quaternion state is continuously updated through the rotational dynamics and quaternion kinematics.
-
-## 3. Quaternion Mathematical Formulation
-
-### 3.1 Quaternion Representation
+### 1.1 Quaternion Representation
 
 The project uses the **scalar-first** quaternion convention:
 
@@ -143,7 +89,7 @@ $$
 \|q\| = \sqrt{q_w^2+q_x^2+q_y^2+q_z^2}=1.
 $$
 
-### 3.2 Quaternion Multiplication
+### 1.2 Quaternion Multiplication
 
 For two scalar-first quaternions
 
@@ -177,7 +123,7 @@ $$
 
 Quaternion multiplication is non-commutative, consistent with three-dimensional rotations.
 
-### 3.3 Quaternion Conjugate and Inverse
+### 1.3 Quaternion Conjugate and Inverse
 
 The conjugate of a scalar-first quaternion is
 
@@ -196,7 +142,7 @@ $$
 q^{-1}=q^*.
 $$
 
-## 4. Reference Attitude Generation
+## 2. Reference Attitude Generation
 
 The desired roll $\phi$, pitch $\theta$, and yaw $\psi$ are converted into a reference quaternion using the **ZYX (yaw-pitch-roll) convention**.
 
@@ -225,7 +171,7 @@ q_z &= \cos\frac{\phi}{2}\cos\frac{\theta}{2}\sin\frac{\psi}{2}
 \end{aligned}
 $$
 
-### 4.1 Example: 90-Degree Roll
+### 2.1 Example: 90-Degree Roll
 
 For a pure 90-degree roll command, $\theta=0$ and $\psi=0$. Therefore,
 
@@ -247,7 +193,7 @@ $$
 
 This quaternion represents the desired 90-degree rotation about the roll axis.
 
-## 5. Quaternion Attitude Error
+## 3. Quaternion Attitude Error
 
 The measured attitude is $q_m$. For the scalar-first convention, the inverse of the measured unit quaternion is
 
@@ -289,7 +235,7 @@ $$
 
 This vector part is used as the attitude-axis error by the P2 controller.
 
-## 6. Quadrotor Rotational Dynamics
+## 4. Quadrotor Rotational Dynamics
 
 The base paper uses the rigid-body rotational dynamics
 
@@ -306,7 +252,7 @@ $$
 where $I$ is the inertia matrix, $\omega=[\omega_x,\omega_y,\omega_z]^T$ is body angular velocity, and $\tau=[\tau_x,\tau_y,\tau_z]^T$ is control torque.
 
 
-## 7. Quaternion Kinematics
+## 5. Quaternion Kinematics
 
 For the adopted scalar-first quaternion convention and body-frame angular velocity, the quaternion kinematics are written as
 
@@ -344,7 +290,7 @@ q(0)=\begin{bmatrix}
 0 \end{bmatrix}.
 $$
 
-## 8. P2 Quaternion Controller
+## 6. P2 Quaternion Controller
 
 The nonlinear P2 controller proposed in the base paper combines quaternion attitude-error feedback with angular-velocity feedback:
 
@@ -371,7 +317,62 @@ $$
 
 where $P_q$ is the quaternion-error gain and $P_\omega$ is the angular-rate feedback gain. The controller operates directly on the quaternion error and angular velocity.
 
-# Results
+## 7. Overall Methodology
+
+The project follows the quaternion-space attitude-control methodology presented in the base paper and implements the control loop in simulation. The main stages are:
+
+1. Define the desired roll, pitch, and yaw attitude.
+
+2. Convert the desired attitude into a reference quaternion $q_{ref}$.
+
+3. Obtain the measured quaternion $q_m$ from the simulated UAV attitude.
+
+4. Calculate the quaternion attitude error.
+
+5. Extract the vector part of the quaternion error as the attitude-axis error.
+
+6. Use the P2 controller together with angular velocity feedback to calculate the control torque $\tau$.
+
+7. Apply the torque to the quadrotor rotational dynamics.
+
+8. Propagate angular velocity into quaternion dynamics.
+
+9. Obtain the updated quaternion state.
+
+10. Feed the measured attitude back to the controller.
+
+11. Generate smooth UAV trajectories using interpolation techniques.
+12. Linear Interpolation (LERP) is used for generating position trajectories by interpolating between initial and final positions.
+13. For attitude trajectory generation, Spherical Linear Interpolation (SLERP) is used to generate smooth quaternion transitions between different orientations.
+14. Convert the quaternion to yaw, pitch, and roll when required for visualization and analysis.
+15. Evaluate the UAV response using MATLAB/Simulink and MuJoCo.
+
+
+## 8. Methodology Flow Diagram
+
+```mermaid
+flowchart TD
+    A[Desired Roll / Pitch / Yaw] --> B[Euler Angle to Quaternion]
+    B --> C[Reference Quaternion q_ref]
+    C --> E[P2 Quaternion Controller]
+    D[Measured Quaternion q_m] --> E
+    F[Angular Velocity omega] --> E
+    E --> G[Control Torque tau]
+    G --> H[Angular Dynamics]
+    H --> F
+    F --> I[Quaternion Dynamics]
+    I --> J[Quaternion State]
+    J --> D
+    J --> K[Quaternion to Yaw Pitch Roll]
+    K --> L[UAV 3D Visualization]
+    
+    M[Trajectory Interpolation LERP and SLERP] --> L
+```
+
+The controller forms the feedback loop using the measured quaternion and angular velocity. The quaternion state is continuously updated through the rotational dynamics and quaternion kinematics.
+
+
+# Simulations
 
 ## 9. MATLAB/Simulink Simulation Results
 
