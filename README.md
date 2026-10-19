@@ -423,7 +423,7 @@ This reference quaternion is supplied to the P² attitude controller, which comp
 
 The corresponding Simulink Scope output is shown below.
 
-![Simulink Scope](Images/scope.png)
+![Simulink Scope](Images/scope1.png)
 
 <p align="center">
   <em>Figure 3. Simulink Scope showing the UAV attitude response for Roll = 90°, Pitch = 30°, and Yaw = 30°.</em>
