@@ -564,7 +564,23 @@ The MuJoCo implementation supports multiple camera modes to provide different pe
 
 The animation demonstrates how the camera perspective changes between orbit, chase, and FPV modes. The orbit view provides an overview of the simulation, the chase view follows the quadrotor, and the FPV mode provides a first-person perspective. These visualization options make it easier to observe the quadrotor's motion and behaviour during simulation.
 
-#### 10.2.3 Wind Disturbance Simulation
+#### 10.2.3 Interactive Simulation Controls
+
+The MuJoCo simulation provides keyboard controls for managing the simulation, adjusting wind disturbances, and switching between camera views.
+
+| Key | Function |
+|---|---|
+| `S` | Start the simulation |
+| `P` | Pause the simulation |
+| `Space` | Toggle between play and pause |
+| `W` | Enable or disable wind disturbance |
+| `↑` / `↓` | Increase or decrease wind strength |
+| `←` / `→` | Change the wind direction by 15° per key press |
+| `V` | Cycle through the available camera modes: Free Camera, Third-Person View, and First Person View |
+
+The current wind strength is displayed in the top-left corner of the viewer, allowing the applied disturbance to be monitored while adjusting it interactively.
+
+#### 10.2.4 Wind Disturbance Simulation
 
 The MuJoCo simulation was extended to apply an external wind force to the quadrotor during B-spline trajectory tracking. The wind disturbance is applied in the world frame while the position and attitude controllers operate, allowing the effect of external forces on the UAV's motion to be observed.
 
