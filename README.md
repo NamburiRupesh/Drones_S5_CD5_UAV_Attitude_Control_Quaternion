@@ -566,17 +566,19 @@ The animation demonstrates how the camera perspective changes between orbit, cha
 
 #### 10.2.3 Wind Disturbance Simulation
 
-The MuJoCo implementation was extended to support wind disturbances during quadrotor simulation. This feature enables the UAV's behaviour to be observed under simulated environmental disturbances.
+The MuJoCo simulation was extended to apply an external wind force to the quadrotor during B-spline trajectory tracking. The wind disturbance is applied in the world frame while the position and attitude controllers operate, allowing the effect of external forces on the UAV's motion to be observed.
+
+The wind force can be enabled or disabled interactively, and its magnitude and horizontal direction can be adjusted during the simulation. A visual arrow indicates the direction of the applied wind force in the MuJoCo viewer.
 
 <p align="center">
   <img src="Animations/MuJoCo_Wind_Simulation.gif">
 </p>
 
 <p align="center">
-  <em>Figure 12. MuJoCo simulation demonstrating the quadrotor under wind disturbance.</em>
+  <em>Figure 12. MuJoCo simulation demonstrating the quadrotor under external wind disturbance.</em>
 </p>
 
-The animation illustrates the quadrotor's response while wind is applied during simulation. Observing the UAV under these conditions provides insight into how environmental disturbances affect its motion and attitude. The simulation can also be used to examine the controller's response to wind, provided the observed behaviour supports such an assessment.
+This simulation demonstrates how an external force affects the quadrotor during trajectory tracking and provides a visual way to observe the UAV's response under disturbed conditions.
 
 ## 11. PyBullet Simulation Results
 
