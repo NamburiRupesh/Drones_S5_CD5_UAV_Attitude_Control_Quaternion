@@ -569,3 +569,8 @@ The MuJoCo implementation was extended to support wind disturbances during quadr
 </p>
 
 The animation illustrates the quadrotor's response while wind is applied during simulation. Observing the UAV under these conditions provides insight into how environmental disturbances affect its motion and attitude. The simulation can also be used to examine the controller's response to wind, provided the observed behaviour supports such an assessment.
+
+## 11. PyBullet Simulation Results
+
+The quaternion-based attitude controller was further implemented and evaluated in PyBullet to examine the quadrotor's behaviour under physics-based simulation. The implementation includes quaternion-based attitude control, motor-force allocation, position holding, and B-spline-based 3D trajectory tracking. The simulation records the UAV's attitude, position, control effort, and trajectory data for performance analysis.
+
