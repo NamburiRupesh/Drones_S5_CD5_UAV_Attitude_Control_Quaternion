@@ -544,4 +544,18 @@ The animation shows the quadrotor following the generated reference path through
 
 #### 10.2.2 Camera Modes and Visualization
 
+### 10.2.2 Camera Modes and Visualization
+
+The MuJoCo implementation supports multiple camera modes to provide different perspectives of the quadrotor during simulation. These include orbit, chase, and first-person view (FPV), allowing the simulation to be observed from different viewpoints.
+
+<p align="center">
+  <img src="Animations/MuJoCo_Camera_Modes.gif">
+</p>
+
+<p align="center">
+  <em>Figure 10. MuJoCo simulation demonstrating the available camera modes.</em>
+</p>
+
+The animation demonstrates how the camera perspective changes between orbit, chase, and FPV modes. The orbit view provides an overview of the simulation, the chase view follows the quadrotor, and the FPV mode provides a first-person perspective. These visualization options make it easier to observe the quadrotor's motion and behaviour during simulation.
+
 #### 10.2.3 Wind Disturbance Simulation
