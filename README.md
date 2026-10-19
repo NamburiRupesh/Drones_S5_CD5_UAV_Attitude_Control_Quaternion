@@ -610,7 +610,7 @@ A static attitude-control experiment was performed with a desired roll angle of 
 
 The resulting roll, pitch, and yaw responses obtained from the PyBullet simulation are shown below.
 
-![PyBullet Static RPY Attitude Response](Simulations/PyBullet/results/attitude_tracking.png)
+![PyBullet Static RPY Attitude Response](Images/attitude_tracking.png)
 
 <p align="center">
   <em>Figure 16. Static RPY attitude response for a 90° roll command in PyBullet.</em>
@@ -622,7 +622,7 @@ The roll response increases from the initial level orientation towards the desir
 
 The controller generates collective thrust and distributes the required forces among the four rotor motors to maintain the quadrotor's flight condition. The corresponding thrust and individual motor-force responses are presented below.
 
-![PyBullet Control Efforts and Actuator Allocations](Simulations/PyBullet/results/control_efforts_attitude.png)
+![PyBullet Control Efforts and Actuator Allocations](Images/control_efforts_attitude.png)
 
 <p align="center">
   <em>Figure 17. Collective thrust and individual rotor-force allocation during attitude control.</em>
@@ -634,7 +634,7 @@ The collective thrust remains approximately constant at 9.81 N, corresponding to
 
 A position-hold experiment was configured to maintain the quadrotor at a reference altitude of 1 m above the ground. The position response was recorded along the X, Y, and Z axes to examine the vehicle's position during the attitude-control experiment.
 
-![PyBullet Attitude Mode Position Hold](Simulations/PyBullet/results/position_hold_attitude.png)
+![PyBullet Attitude Mode Position Hold](Images/position_hold_attitude.png)
 
 <p align="center">
   <em>Figure 18. Position response during the PyBullet attitude-control experiment.</em>
@@ -650,7 +650,7 @@ The PyBullet implementation was extended to support B-spline-based trajectory ge
 
 The desired B-spline path and the actual simulated flight path are compared below.
 
-![PyBullet 3D Quadrotor Trajectory Tracking](Simulations/PyBullet/results/trajectory_3d.png)
+![PyBullet 3D Quadrotor Trajectory Tracking](Images/trajectory_3d.png)
 
 <p align="center">
   <em>Figure 19. Comparison of the desired B-spline path and actual quadrotor flight trajectory in PyBullet.</em>
@@ -664,7 +664,7 @@ The two curves show close visual correspondence over much of the trajectory, ind
 
 To examine trajectory-following performance in greater detail, the desired and actual positions were compared independently along the X, Y, and Z axes. The resulting position-tracking plots and their reported root mean square error (RMSE) values are shown below.
 
-![PyBullet Trajectory Position Tracking](Simulations/PyBullet/results/trajectory_position_tracking.png)
+![PyBullet Trajectory Position Tracking](Images/trajectory_position_tracking.png)
 
 <p align="center">
   <em>Figure 20. Position-tracking responses and RMSE values during B-spline trajectory following.</em>
