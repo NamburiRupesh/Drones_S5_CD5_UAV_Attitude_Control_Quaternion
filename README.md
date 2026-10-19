@@ -352,25 +352,28 @@ The project follows the quaternion-space attitude-control methodology presented 
 
 ```mermaid
 
-flowchart TD
-    A[Desired Roll / Pitch / Yaw] --> B[Euler Angle to Quaternion]
-    B --> C[Reference Quaternion q_ref]
+flowchart LR
+    A["Desired Attitude<br/>Roll, Pitch, Yaw"] --> B["Euler to<br/>Quaternion"]
+    B --> C["Reference Quaternion<br/>q_ref"]
 
-    M[B-spline Trajectory Generation<br/>PyBullet and MuJoCo] --> N[Reference Trajectory]
-    N --> L[UAV 3D Visualization]
+    C --> E["P2 Quaternion<br/>Controller"]
+    D["Measured Quaternion<br/>q_m"] --> E
+    F["Angular Velocity<br/>omega"] --> E
 
-    C --> E[P2 Quaternion Controller]
-    D[Measured Quaternion q_m] --> E
-    F[Angular Velocity omega] --> E
-
-    E --> G[Control Torque tau]
-    G --> H[Angular Dynamics]
+    E --> G["Control Torque<br/>tau"]
+    G --> H["Angular<br/>Dynamics"]
     H --> F
-    F --> I[Quaternion Dynamics]
-    I --> J[Quaternion State]
+    H --> I["Quaternion<br/>Dynamics"]
+    I --> J["Updated Quaternion<br/>State"]
     J --> D
-    J --> K[Quaternion to Yaw Pitch Roll]
-    K --> L
+    J --> K["Quaternion to<br/>Euler Angles"]
+    K --> L["UAV Visualization"]
+
+    M["B-spline Trajectory<br/>Generation"] --> N["Reference Trajectory"]
+    N --> L
+
+    O["Implemented in<br/>PyBullet and MuJoCo"] -.-> M
+
 
 ```
 
