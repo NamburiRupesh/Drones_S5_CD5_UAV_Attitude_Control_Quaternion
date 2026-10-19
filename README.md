@@ -325,7 +325,7 @@ The project follows the quaternion-space attitude-control methodology presented 
 
 2. Generate smooth reference trajectories using B-spline trajectory generation (PyBullet and MuJoCo).
 
-3. Convert the desired attitude into a reference quaternion q_ref.
+3. Convert the desired attitude into a reference quaternion $q_{\text{ref}}$.
 
 4. Obtain the measured quaternion (q_m) from the simulated UAV attitude.
 
@@ -333,7 +333,7 @@ The project follows the quaternion-space attitude-control methodology presented 
 
 6. Extract the vector part of the quaternion error as the attitude-axis error.
 
-7. Use the P2 controller together with angular velocity feedback to calculate the control torque tau.
+7. Use the P2 controller together with angular velocity feedback to calculate the control torque $tau$.
 
 8. Apply the torque to the quadrotor rotational dynamics.
 
