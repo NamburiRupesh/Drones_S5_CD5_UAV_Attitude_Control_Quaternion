@@ -600,5 +600,94 @@ This simulation demonstrates how an external force affects the quadrotor during 
 
 ## 11. PyBullet Simulation Results
 
-The quaternion-based attitude controller was further implemented and evaluated in PyBullet to examine the quadrotor's behaviour under physics-based simulation. The implementation includes quaternion-based attitude control, motor-force allocation, position holding, and B-spline-based 3D trajectory tracking. The simulation records the UAV's attitude, position, control effort, and trajectory data for performance analysis.
+The quaternion-based attitude controller was further evaluated in PyBullet to examine the quadrotor's behaviour under physics-based dynamics. Two experiments were performed: attitude control with position holding and B-spline-based three-dimensional trajectory tracking. The simulations were used to examine attitude response, control effort, motor-force allocation, and position-tracking performance.
 
+### 11.1 Initial Attitude Control Results
+
+#### 11.1.1 Static RPY Attitude Response
+
+A static attitude-control experiment was performed with a desired roll angle of 90°, while the pitch and yaw references were maintained at 0°.
+
+The resulting roll, pitch, and yaw responses obtained from the PyBullet simulation are shown below.
+
+![PyBullet Static RPY Attitude Response](Simulations/PyBullet/results/attitude_tracking.png)
+
+<p align="center">
+  <em>Figure 16. Static RPY attitude response for a 90° roll command in PyBullet.</em>
+</p>
+
+The roll response increases from the initial level orientation towards the desired 90° reference, while pitch and yaw remain approximately at 0°. This demonstrates the simulated controller's response to the commanded roll rotation. The attitude response provides a visual means of examining the tracking behaviour of the quaternion-based P2 controller.
+
+#### 11.1.2 Control Effort and Actuator Allocation
+
+The controller generates collective thrust and distributes the required forces among the four rotor motors to maintain the quadrotor's flight condition. The corresponding thrust and individual motor-force responses are presented below.
+
+![PyBullet Control Efforts and Actuator Allocations](Simulations/PyBullet/results/control_efforts_attitude.png)
+
+<p align="center">
+  <em>Figure 17. Collective thrust and individual rotor-force allocation during attitude control.</em>
+</p>
+
+The collective thrust remains approximately constant at 9.81 N, corresponding to the hover-thrust reference shown in the plot. The individual motor forces initially exhibit small differences before settling near 2.45 N per motor. This response illustrates the distribution of thrust among the four motors during the configured hover and attitude-control experiment.
+
+#### 11.1.3 Position-Hold Response
+
+A position-hold experiment was configured to maintain the quadrotor at a reference altitude of 1 m above the ground. The position response was recorded along the X, Y, and Z axes to examine the vehicle's position during the attitude-control experiment.
+
+![PyBullet Attitude Mode Position Hold](Simulations/PyBullet/results/position_hold_attitude.png)
+
+<p align="center">
+  <em>Figure 18. Position response during the PyBullet attitude-control experiment.</em>
+</p>
+
+The X-axis and Z-axis plots show close agreement between the displayed reference and actual responses. However, the Y-axis plot shows a discrepancy between the desired and actual values. This indicates that the position-hold result requires further verification before concluding that the quadrotor maintains the complete reference position.
+
+### 11.2 Extended PyBullet Simulation
+
+#### 11.2.1 B-Spline Trajectory Tracking
+
+The PyBullet implementation was extended to support B-spline-based trajectory generation and three-dimensional waypoint tracking. The reference trajectory passes through a sequence of configured waypoints, enabling the quadrotor to follow a smooth spatial path.
+
+The desired B-spline path and the actual simulated flight path are compared below.
+
+![PyBullet 3D Quadrotor Trajectory Tracking](Simulations/PyBullet/results/trajectory_3d.png)
+
+<p align="center">
+  <em>Figure 19. Comparison of the desired B-spline path and actual quadrotor flight trajectory in PyBullet.</em>
+</p>
+
+The red dashed curve represents the desired B-spline trajectory, while the blue curve represents the actual drone flight path. The waypoint markers identify the reference positions, and the ground projection provides an additional view of the trajectory in the horizontal plane.
+
+The two curves show close visual correspondence over much of the trajectory, indicating that the simulated quadrotor follows the general shape of the reference path. The differences between the curves provide a basis for examining trajectory-tracking errors.
+
+#### 11.2.2 Trajectory Position Tracking
+
+To examine trajectory-following performance in greater detail, the desired and actual positions were compared independently along the X, Y, and Z axes. The resulting position-tracking plots and their reported root mean square error (RMSE) values are shown below.
+
+![PyBullet Trajectory Position Tracking](Simulations/PyBullet/results/trajectory_position_tracking.png)
+
+<p align="center">
+  <em>Figure 20. Position-tracking responses and RMSE values during B-spline trajectory following.</em>
+</p>
+
+The simulation reports RMSE values of 0.019 m along the X-axis, 0.007 m along the Y-axis, and 0.107 m along the Z-axis. These values indicate that the recorded trajectory has different tracking-error magnitudes along the three coordinate axes, with the largest reported error occurring along the vertical axis.
+
+The position-tracking plots complement the three-dimensional trajectory visualization by showing how closely the simulated position follows the desired reference over time.
+
+#### 11.2.3 PyBullet 3D Simulation Visualization
+
+The trajectory-tracking experiment was also demonstrated directly in the PyBullet 3D physics environment. The visualization displays the quadrotor, waypoint markers, and generated reference path, providing a direct view of the simulated flight through the configured waypoints.
+
+![PyBullet B-Spline Trajectory Simulation](Animations/PyBullet_Trajectory.gif)
+
+<p align="center">
+  <em>Figure 21. PyBullet simulation demonstrating quadrotor waypoint navigation and B-spline trajectory following.</em>
+</p>
+
+The animation illustrates the quadrotor's movement through the waypoint sequence and its progression along the generated path. Together with the trajectory plots, the visualization provides a qualitative demonstration of the implemented trajectory-following system.
+
+### 11.3 PyBullet Simulation Summary
+
+The PyBullet experiments extend the existing quaternion-based UAV attitude-control project by demonstrating both fixed-attitude control and three-dimensional trajectory tracking in a physics-based environment. The attitude plots illustrate the response to a roll command, while the trajectory plots provide a comparison between the desired path and the simulated flight response.
+
+The combination of response plots, motor-force analysis, position-tracking errors, and three-dimensional visualization provides a foundation for evaluating the controller under the configured simulation conditions. Further verification of the position-hold reference and quantitative tracking metrics would strengthen the overall assessment of the implementation.
