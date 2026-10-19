@@ -351,28 +351,27 @@ The project follows the quaternion-space attitude-control methodology presented 
 ## 8. Methodology Flow Diagram
 
 ```mermaid
-
+%%{init: {"flowchart": {"htmlLabels": false, "nodeSpacing": 50, "rankSpacing": 50, "padding": 15}, "themeVariables": {"fontFamily": "Arial, sans-serif"}}}%%
 flowchart TD
-    A["Desired Attitude<br/>(Roll, Pitch, Yaw)"] --> B["Euler to Quaternion"]
-    B --> C["Reference Quaternion q_ref"]
+    A["Desired Attitude<br/>(Roll, Pitch, Yaw)"] --> B["Euler to<br/>Quaternion"]
+    B --> C["Reference Quaternion<br/>q_ref"]
 
-    C --> E["P2 Quaternion Controller"]
-    D["Measured Quaternion q_m"] --> E
+    C --> E["P2 Quaternion<br/>Controller"]
+    D["Measured Quaternion<br/>q_m"] --> E
     F["Angular Velocity ω"] --> E
 
     E --> G["Control Torque τ"]
     G --> H["Angular Dynamics"]
     H --> F
-    H --> I["Quaternion Dynamics"]
-    I --> J["Updated Quaternion State"]
+    H --> I["Quaternion<br/>Dynamics"]
+    I --> J["Updated<br/>Quaternion State"]
     J --> D
-    J --> K["Quaternion to Euler Angles"]
-    K --> L["UAV 3D Visualization"]
+    J --> K["Quaternion to<br/>Euler Angles"]
+    K --> L["UAV 3D<br/>Visualization"]
 
-    M["B-spline Trajectory Generation"] --> N["Reference Trajectory"]
+    M["B-spline Trajectory<br/>Generation"] --> N["Reference<br/>Trajectory"]
     N -.-> L
     O["PyBullet and MuJoCo"] -.-> M
-
 ```
 
 The controller forms the feedback loop using the measured quaternion and angular velocity. The quaternion state is continuously updated through the rotational dynamics and quaternion kinematics.
