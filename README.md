@@ -678,7 +678,7 @@ The position-tracking plots complement the three-dimensional trajectory visualiz
 
 The trajectory-tracking experiment was also demonstrated directly in the PyBullet 3D physics environment. The visualization displays the quadrotor, waypoint markers, and generated reference path, providing a direct view of the simulated flight through the configured waypoints.
 
-![PyBullet B-Spline Trajectory Simulation](Animations/rrun.ps1.gif)
+![PyBullet B-Spline Trajectory Simulation](Animations/rrrun.ps1.gif)
 
 <p align="center">
   <em>Figure 21. PyBullet simulation demonstrating quadrotor waypoint navigation and B-spline trajectory following.</em>
