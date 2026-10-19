@@ -395,7 +395,7 @@ The quaternion-based attitude controller was first evaluated in MATLAB/Simulink.
 
 The complete Simulink model integrates the reference-attitude generation, quaternion-based P2 controller, rotational dynamics, quaternion state propagation, and visualization blocks.
 
-![Complete Simulink Model](Images/Simulink_model.png)
+![Complete Simulink Model](Images/Simulink_model1.png)
 
 <p align="center">
   <em>Figure 2. Complete MATLAB/Simulink model for quaternion-based UAV attitude control.</em>
