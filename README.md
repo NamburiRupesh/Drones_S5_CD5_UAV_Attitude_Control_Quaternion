@@ -24,9 +24,20 @@ The project is based on the quaternion-based attitude control approach presented
 
 Unmanned Aerial Vehicles (UAVs), particularly quadrotors with Vertical Take-Off and Landing (VTOL) capability, have gained significant attention because of their ability to perform complex aerial missions. Quadrotor control is generally divided into translation control and attitude control, where the position controller can generate desired attitude set-points for the attitude controller. Achieving accurate, smooth, and robust attitude stabilization remains an important challenge in quadrotor control.
 
-The attitude of a quadrotor is described by its roll, pitch, and yaw rotations. A major challenge in attitude control arises from the mathematical properties of three-dimensional rotations, since finite rotations are non-commutative and cannot be treated as ordinary vectors. Conventional approaches based on Euler angles are intuitive but suffer from singularities, particularly the well-known gimbal-lock problem. Direction Cosine Matrices (DCMs) avoid this singularity but introduce a more complex representation and require maintaining orthogonality constraints.
+The attitude of a quadrotor is described by its roll, pitch, and yaw rotations. A major challenge in attitude control arises from the mathematical properties of three-dimensional rotations, since finite rotations are non-commutative and cannot be treated as ordinary vectors. Conventional approaches based on Euler angles are intuitive but suffer from singularities, particularly the well-known gimbal-lock problem. At certain orientations, two rotational axes align, causing the Euler angle representation to lose an independent rotational degree of freedom. This can introduce singularities into the attitude kinematic equations, making Euler angles unsuitable for representing all possible orientations without singularities.
 
-To overcome these limitations, the base paper, **“Full Quaternion Based Attitude Control for a Quadrotor” by Emil Fresk and George Nikolakopoulos**, proposes the use of quaternions for representing quadrotor attitude. A quaternion provides a compact four-parameter representation of three-dimensional orientation while avoiding the geometric singularities associated with Euler angles. The paper's key approach is to implement both the quadrotor attitude model and the nonlinear Proportional Squared (P2) controller directly in quaternion space, without requiring transformations through Euler angles or DCMs.
+The following animation illustrates the gimbal-lock phenomenon in Euler-angle representation.
+
+<p align="center">
+  <img src="Animations/Euler_gimbal_lock.gif" alt="Illustration of gimbal lock in Euler angles" width="400">
+</p>
+
+<p align="center">
+  <em>Figure 1. Illustration of gimbal lock, where the alignment of two rotational axes causes a loss of an independent rotational degree of freedom in the Euler-angle representation.</em>
+</p>
+
+
+To overcome these limitations, the base paper, **“Full Quaternion Based Attitude Control for a Quadrotor” by Emil Fresk and George Nikolakopoulos**, proposes the use of quaternions for representing quadrotor attitude. A quaternion provides a four-parameter representation of three-dimensional orientation without the geometric singularities associated with Euler angles. Unlike Euler angles, quaternion-based representations can describe all three-dimensional orientations without gimbal lock, making them well suited for attitude estimation and control. The paper's key approach is to implement both the quadrotor attitude model and the nonlinear Proportional Squared (P2) controller directly in quaternion space, without requiring transformations through Euler angles or Direction Cosine Matrices (DCMs).
 
 A unit quaternion can be represented as
 
@@ -370,7 +381,7 @@ The complete Simulink model integrates the reference-attitude generation, quater
 
 ![Complete Simulink Model](Images/Simulink_model.png)
 
-*Figure 1. Complete MATLAB/Simulink model for quaternion-based UAV attitude control.*
+*Figure 2. Complete MATLAB/Simulink model for quaternion-based UAV attitude control.*
 
 ### 9.2 Combined Roll, Pitch and Yaw Response
 
@@ -403,7 +414,7 @@ The corresponding Simulink Scope output is shown below.
 
 ![Simulink Scope](Images/scope.png)
 
-*Figure 2. Simulink Scope showing the UAV attitude response for Roll = 90°, Pitch = 30°, and Yaw = 30°.*
+*Figure 3. Simulink Scope showing the UAV attitude response for Roll = 90°, Pitch = 30°, and Yaw = 30°.*
 
 The three colored traces in the scope represent the three attitude components:
 
@@ -418,7 +429,7 @@ A separate simulation was performed with a roll reference of 90°. The animation
 
 ![90-Degree Roll Animation](Animations/drone.gif)
 
-*Figure 3. Simulink 3D animation demonstrating a 90° roll maneuver.*
+*Figure 4. Simulink 3D animation demonstrating a 90° roll maneuver.*
 
 The 90° roll test provides a direct visual verification of the attitude controller. The UAV rotates about the roll axis in response to the quaternion-based control torque generated by the P2 controller.
 
@@ -447,7 +458,7 @@ The resulting roll, pitch, and yaw responses obtained from the MuJoCo simulation
 
 ![Static RPY Attitude Response](Images/static_rpy_attitude_response.png)
 
-**Figure 4.** Static RPY response for 60° roll.
+**Figure 5.** Static RPY response for 60° roll.
 
 The roll response reaches the desired 60° reference, while pitch and yaw remain close to 0°, showing that the controller correctly tracks the roll command.
 
@@ -457,7 +468,7 @@ The control torques generated during the same 60° roll-command simulation are s
 
 ![Static RPY Control Torque](Images/static_rpy_control_toque.png)
 
-**Figure 5.** Control torque response for 60° roll.
+**Figure 6.** Control torque response for 60° roll.
 
 The controller generates a corrective roll torque to reach the desired attitude, while the pitch and yaw torques remain close to zero.
 
@@ -467,7 +478,7 @@ Since the proposed controller operates directly using quaternion attitude errors
 
 ![Static RPY Quaternion Response](Images/static_rpy_quaternion_response.png)
 
-**Figure 6.** Quaternion response for 60° roll.
+**Figure 7.** Quaternion response for 60° roll.
 
 The quaternion response shows that q₀ and q₁ change to represent the 60° roll rotation, while q₂ and q₃ remain approximately constant at zero because no pitch or yaw rotation is commanded. This confirms that the quaternion response corresponds correctly to the applied roll-only attitude command.
 
@@ -477,7 +488,7 @@ The controller was also demonstrated directly using the MuJoCo 3D viewer. A sepa
 
 ![MuJoCo Simulation](Animations/MuJoCo%20Simulation.gif)
 
-**Figure 7.** MuJoCo simulation for 90° roll.
+**Figure 8.** MuJoCo simulation for 90° roll.
 
 The animation provides a direct visual representation of the quadrotor's response to the attitude command. Starting from the initial level orientation, the quadrotor rotates about its roll axis toward the commanded 90° orientation under the control torques generated by the quaternion P² controller.
 
