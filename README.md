@@ -321,31 +321,31 @@ where $P_q$ is the quaternion-error gain and $P_\omega$ is the angular-rate feed
 
 The project follows the quaternion-space attitude-control methodology presented in the base paper and implements the control loop in simulation. The main stages are:
 
-1. Define the desired roll, pitch, and yaw attitude.
+1. Define the desired UAV attitude and reference trajectory.
 
-2. Convert the desired attitude into a reference quaternion $q_{ref}$.
+2. Generate smooth reference trajectories using B-spline trajectory generation (PyBullet and MuJoCo).
 
-3. Obtain the measured quaternion $q_m$ from the simulated UAV attitude.
+3. Convert the desired attitude into a reference quaternion (q_{ref}).
 
-4. Calculate the quaternion attitude error.
+4. Obtain the measured quaternion (q_m) from the simulated UAV attitude.
 
-5. Extract the vector part of the quaternion error as the attitude-axis error.
+5. Calculate the quaternion attitude error.
 
-6. Use the P2 controller together with angular velocity feedback to calculate the control torque $\tau$.
+6. Extract the vector part of the quaternion error as the attitude-axis error.
 
-7. Apply the torque to the quadrotor rotational dynamics.
+7. Use the P2 controller together with angular velocity feedback to calculate the control torque (\tau).
 
-8. Propagate angular velocity into quaternion dynamics.
+8. Apply the torque to the quadrotor rotational dynamics.
 
-9. Obtain the updated quaternion state.
+9. Propagate angular velocity into quaternion dynamics.
 
-10. Feed the measured attitude back to the controller.
+10. Obtain the updated quaternion state.
 
-11. Generate smooth UAV trajectories using interpolation techniques.
-12. Linear Interpolation (LERP) is used for generating position trajectories by interpolating between initial and final positions.
-13. For attitude trajectory generation, Spherical Linear Interpolation (SLERP) is used to generate smooth quaternion transitions between different orientations.
-14. Convert the quaternion to yaw, pitch, and roll when required for visualization and analysis.
-15. Evaluate the UAV response using MATLAB/Simulink and MuJoCo.
+11. Feed the measured attitude back to the controller.
+
+12. Convert the quaternion to yaw, pitch, and roll when required for visualization and analysis.
+
+13. Evaluate the UAV response using MATLAB/Simulink, MuJoCo, and PyBullet.
 
 
 ## 8. Methodology Flow Diagram
