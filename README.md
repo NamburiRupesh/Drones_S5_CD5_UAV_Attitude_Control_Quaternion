@@ -351,12 +351,18 @@ The project follows the quaternion-space attitude-control methodology presented 
 ## 8. Methodology Flow Diagram
 
 ```mermaid
+
 flowchart TD
     A[Desired Roll / Pitch / Yaw] --> B[Euler Angle to Quaternion]
     B --> C[Reference Quaternion q_ref]
+
+    M[B-spline Trajectory Generation<br/>PyBullet and MuJoCo] --> N[Reference Trajectory]
+    N --> L[UAV 3D Visualization]
+
     C --> E[P2 Quaternion Controller]
     D[Measured Quaternion q_m] --> E
     F[Angular Velocity omega] --> E
+
     E --> G[Control Torque tau]
     G --> H[Angular Dynamics]
     H --> F
@@ -364,9 +370,8 @@ flowchart TD
     I --> J[Quaternion State]
     J --> D
     J --> K[Quaternion to Yaw Pitch Roll]
-    K --> L[UAV 3D Visualization]
-    
-    M[Trajectory Interpolation LERP and SLERP] --> L
+    K --> L
+
 ```
 
 The controller forms the feedback loop using the measured quaternion and angular velocity. The quaternion state is continuously updated through the rotational dynamics and quaternion kinematics.
