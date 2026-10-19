@@ -566,6 +566,8 @@ The animation demonstrates how the camera perspective changes between orbit, cha
 
 #### 10.2.3 Interactive Simulation Controls
 
+### 10.2.3 Interactive Simulation Controls
+
 The MuJoCo simulation provides keyboard controls for managing the simulation, adjusting wind disturbances, and switching between camera views.
 
 | Key | Function |
@@ -574,11 +576,11 @@ The MuJoCo simulation provides keyboard controls for managing the simulation, ad
 | `P` | Pause the simulation |
 | `Space` | Toggle between play and pause |
 | `W` | Enable or disable wind disturbance |
-| `↑` / `↓` | Increase or decrease wind strength |
+| `↑` / `↓` / `+` / `-` | Increase or decrease wind strength |
 | `←` / `→` | Change the wind direction by 15° per key press |
-| `V` | Cycle through the available camera modes: Free Camera, Third-Person View, and First Person View |
+| `C` | Cycle through the available camera modes: Free Camera, Third-Person View, and Pilot View |
 
-The current wind strength is displayed in the top-left corner of the viewer, allowing the applied disturbance to be monitored while adjusting it interactively.
+The top-left corner of the MuJoCo viewer displays the simulation status, current camera mode, and available keyboard shortcuts for controlling playback, switching camera views, and adjusting wind disturbances.
 
 #### 10.2.4 Wind Disturbance Simulation
 
