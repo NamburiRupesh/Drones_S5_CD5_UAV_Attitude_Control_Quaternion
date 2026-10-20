@@ -611,7 +611,7 @@ The resulting roll, pitch, and yaw responses obtained from the PyBullet simulati
 ![PyBullet Static RPY Attitude Response](Images/attitude_tracking.png)
 
 <p align="center">
-  <em>Figure 16. Static RPY attitude response for a 90° roll command in PyBullet.</em>
+  <em>Figure 13. Static RPY attitude response for a 90° roll command in PyBullet.</em>
 </p>
 
 The roll response increases from the initial level orientation towards the desired 90° reference, while pitch and yaw remain approximately at 0°. This demonstrates the simulated controller's response to the commanded roll rotation. The attitude response provides a visual means of examining the tracking behaviour of the quaternion-based P2 controller.
@@ -623,7 +623,7 @@ The controller generates collective thrust and distributes the required forces a
 ![PyBullet Control Efforts and Actuator Allocations](Images/control_efforts_attitude.png)
 
 <p align="center">
-  <em>Figure 17. Collective thrust and individual rotor-force allocation during attitude control.</em>
+  <em>Figure 14. Collective thrust and individual rotor-force allocation during attitude control.</em>
 </p>
 
 The collective thrust remains approximately constant at 9.81 N, corresponding to the hover-thrust reference shown in the plot. The individual motor forces initially exhibit small differences before settling near 2.45 N per motor. This response illustrates the distribution of thrust among the four motors during the configured hover and attitude-control experiment.
@@ -635,7 +635,7 @@ A position-hold experiment was configured to maintain the quadrotor at a referen
 ![PyBullet Attitude Mode Position Hold](Images/position_hold_attitude.png)
 
 <p align="center">
-  <em>Figure 18. Position response during the PyBullet attitude-control experiment.</em>
+  <em>Figure 15. Position response during the PyBullet attitude-control experiment.</em>
 </p>
 
 The X-axis and Z-axis plots show close agreement between the displayed reference and actual responses. However, the Y-axis plot shows a discrepancy between the desired and actual values. This indicates that the position-hold result requires further verification before concluding that the quadrotor maintains the complete reference position.
@@ -651,7 +651,7 @@ The desired B-spline path and the actual simulated flight path are compared belo
 ![PyBullet 3D Quadrotor Trajectory Tracking](Images/trajectory_3d.png)
 
 <p align="center">
-  <em>Figure 19. Comparison of the desired B-spline path and actual quadrotor flight trajectory in PyBullet.</em>
+  <em>Figure 16. Comparison of the desired B-spline path and actual quadrotor flight trajectory in PyBullet.</em>
 </p>
 
 The red dashed curve represents the desired B-spline trajectory, while the blue curve represents the actual drone flight path. The waypoint markers identify the reference positions, and the ground projection provides an additional view of the trajectory in the horizontal plane.
@@ -665,7 +665,7 @@ To examine trajectory-following performance in greater detail, the desired and a
 ![PyBullet Trajectory Position Tracking](Images/trajectory_position_tracking.png)
 
 <p align="center">
-  <em>Figure 20. Position-tracking responses and RMSE values during B-spline trajectory following.</em>
+  <em>Figure 17. Position-tracking responses and RMSE values during B-spline trajectory following.</em>
 </p>
 
 The simulation reports RMSE values of 0.019 m along the X-axis, 0.007 m along the Y-axis, and 0.107 m along the Z-axis. These values indicate that the recorded trajectory has different tracking-error magnitudes along the three coordinate axes, with the largest reported error occurring along the vertical axis.
@@ -679,7 +679,7 @@ The trajectory-tracking experiment was also demonstrated directly in the PyBulle
 ![PyBullet B-Spline Trajectory Simulation](Animations/rrun.ps1.gif)
 
 <p align="center">
-  <em>Figure 21. PyBullet simulation demonstrating quadrotor waypoint navigation and B-spline trajectory following.</em>
+  <em>Figure 18. PyBullet simulation demonstrating quadrotor waypoint navigation and B-spline trajectory following.</em>
 </p>
 
 The animation illustrates the quadrotor's movement through the waypoint sequence and its progression along the generated path. Together with the trajectory plots, the visualization provides a qualitative demonstration of the implemented trajectory-following system.
