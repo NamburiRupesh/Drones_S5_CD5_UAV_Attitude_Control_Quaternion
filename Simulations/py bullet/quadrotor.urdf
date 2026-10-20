@@ -1,0 +1,273 @@
+<?xml version="1.0" ?>
+<!-- ==============================================================================
+     QUADROTOR URDF MODEL (PLUS "+" CONFIGURATION)
+     Accurately matches the physical inertia, mass, and geometry from MuJoCo.
+     
+     Physical Specs:
+       Mass: 1.0 kg
+       Inertia: Ixx=0.00065, Iyy=0.00065, Izz=0.0012 kg*m^2
+       Arm length: L = 0.45 m
+       Rotor 1: Front (+X, L=0.45)
+       Rotor 2: Rear  (-X, L=0.45)
+       Rotor 3: Left  (+Y, L=0.45)
+       Rotor 4: Right (-Y, L=0.45)
+     ============================================================================== -->
+<robot name="quadrotor">
+
+  <!-- Materials -->
+  <material name="dark_carbon">
+    <color rgba="0.12 0.14 0.18 1.0"/>
+  </material>
+  <material name="panel_silver">
+    <color rgba="0.75 0.78 0.82 1.0"/>
+  </material>
+  <material name="neon_cyan">
+    <color rgba="0.0 0.85 1.0 1.0"/>
+  </material>
+  <material name="front_accent">
+    <color rgba="0.1 0.9 0.3 1.0"/>
+  </material>
+  <material name="rotor_blade">
+    <color rgba="0.15 0.18 0.22 0.85"/>
+  </material>
+  <material name="motor_metal">
+    <color rgba="0.4 0.45 0.5 1.0"/>
+  </material>
+  <material name="skid_mat">
+    <color rgba="0.25 0.25 0.28 1.0"/>
+  </material>
+
+  <!-- Base Link: Quadrotor Chassis -->
+  <link name="base_link">
+    <!-- Center of mass and exact inertia tensor from MuJoCo -->
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="0.00065" ixy="0.0" ixz="0.0" iyy="0.00065" iyz="0.0" izz="0.0012"/>
+    </inertial>
+
+    <!-- ==================== VISUAL GEOMETRY ==================== -->
+    <!-- Central Fuselage (Main Body) -->
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.26 0.26 0.06"/>
+      </geometry>
+      <material name="dark_carbon"/>
+    </visual>
+
+    <!-- Top Canopy Shell -->
+    <visual>
+      <origin xyz="0 0 0.04" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.18 0.16 0.035"/>
+      </geometry>
+      <material name="panel_silver"/>
+    </visual>
+
+    <!-- Front Direction Indicator (Green Arrow Head) -->
+    <visual>
+      <origin xyz="0.15 0 0.04" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.06 0.08 0.02"/>
+      </geometry>
+      <material name="front_accent"/>
+    </visual>
+
+    <!-- Forward Status LED Beacon -->
+    <visual>
+      <origin xyz="0.14 0 0.02" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.022"/>
+      </geometry>
+      <material name="neon_cyan"/>
+    </visual>
+
+    <!-- Arm X (Front - Rear): -0.45m to +0.45m -->
+    <visual>
+      <origin xyz="0 0 0.01" rpy="0 1.570796 0"/>
+      <geometry>
+        <cylinder radius="0.016" length="0.90"/>
+      </geometry>
+      <material name="dark_carbon"/>
+    </visual>
+
+    <!-- Arm Y (Left - Right): -0.45m to +0.45m -->
+    <visual>
+      <origin xyz="0 0 0.01" rpy="1.570796 0 0"/>
+      <geometry>
+        <cylinder radius="0.016" length="0.90"/>
+      </geometry>
+      <material name="dark_carbon"/>
+    </visual>
+
+    <!-- Motor 1 (Front: +X = 0.45m) -->
+    <visual>
+      <origin xyz="0.45 0 0.03" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.038" length="0.04"/>
+      </geometry>
+      <material name="front_accent"/>
+    </visual>
+    <!-- Propeller 1 -->
+    <visual>
+      <origin xyz="0.45 0 0.055" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.24 0.024 0.005"/>
+      </geometry>
+      <material name="rotor_blade"/>
+    </visual>
+
+    <!-- Motor 2 (Rear: -X = -0.45m) -->
+    <visual>
+      <origin xyz="-0.45 0 0.03" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.038" length="0.04"/>
+      </geometry>
+      <material name="motor_metal"/>
+    </visual>
+    <!-- Propeller 2 -->
+    <visual>
+      <origin xyz="-0.45 0 0.055" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.24 0.024 0.005"/>
+      </geometry>
+      <material name="rotor_blade"/>
+    </visual>
+
+    <!-- Motor 3 (Left: +Y = 0.45m) -->
+    <visual>
+      <origin xyz="0 0.45 0.03" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.038" length="0.04"/>
+      </geometry>
+      <material name="motor_metal"/>
+    </visual>
+    <!-- Propeller 3 -->
+    <visual>
+      <origin xyz="0 0.45 0.055" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.024 0.24 0.005"/>
+      </geometry>
+      <material name="rotor_blade"/>
+    </visual>
+
+    <!-- Motor 4 (Right: -Y = -0.45m) -->
+    <visual>
+      <origin xyz="0 -0.45 0.03" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.038" length="0.04"/>
+      </geometry>
+      <material name="motor_metal"/>
+    </visual>
+    <!-- Propeller 4 -->
+    <visual>
+      <origin xyz="0 -0.45 0.055" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.024 0.24 0.005"/>
+      </geometry>
+      <material name="rotor_blade"/>
+    </visual>
+
+    <!-- Landing Skids / Legs (4 angled legs with stable footpads) -->
+    <!-- Front-Left Leg -->
+    <visual>
+      <origin xyz="0.12 0.12 -0.06" rpy="0.3 -0.3 0"/>
+      <geometry>
+        <cylinder radius="0.008" length="0.13"/>
+      </geometry>
+      <material name="skid_mat"/>
+    </visual>
+    <!-- Front-Right Leg -->
+    <visual>
+      <origin xyz="0.12 -0.12 -0.06" rpy="-0.3 -0.3 0"/>
+      <geometry>
+        <cylinder radius="0.008" length="0.13"/>
+      </geometry>
+      <material name="skid_mat"/>
+    </visual>
+    <!-- Rear-Left Leg -->
+    <visual>
+      <origin xyz="-0.12 0.12 -0.06" rpy="0.3 0.3 0"/>
+      <geometry>
+        <cylinder radius="0.008" length="0.13"/>
+      </geometry>
+      <material name="skid_mat"/>
+    </visual>
+    <!-- Rear-Right Leg -->
+    <visual>
+      <origin xyz="-0.12 -0.12 -0.06" rpy="-0.3 0.3 0"/>
+      <geometry>
+        <cylinder radius="0.008" length="0.13"/>
+      </geometry>
+      <material name="skid_mat"/>
+    </visual>
+
+    <!-- Landing Footpads (sitting at z = -0.12m) -->
+    <visual>
+      <origin xyz="0.16 0.16 -0.11" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.02" length="0.015"/>
+      </geometry>
+      <material name="dark_carbon"/>
+    </visual>
+    <visual>
+      <origin xyz="0.16 -0.16 -0.11" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.02" length="0.015"/>
+      </geometry>
+      <material name="dark_carbon"/>
+    </visual>
+    <visual>
+      <origin xyz="-0.16 0.16 -0.11" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.02" length="0.015"/>
+      </geometry>
+      <material name="dark_carbon"/>
+    </visual>
+    <visual>
+      <origin xyz="-0.16 -0.16 -0.11" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.02" length="0.015"/>
+      </geometry>
+      <material name="dark_carbon"/>
+    </visual>
+
+    <!-- ==================== COLLISION GEOMETRY ==================== -->
+    <!-- Central Fuselage Box -->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.26 0.26 0.07"/>
+      </geometry>
+    </collision>
+
+    <!-- Stable 4 Footpad Collisions for Ground Contact -->
+    <collision>
+      <origin xyz="0.16 0.16 -0.11" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.02"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.16 -0.16 -0.11" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.02"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="-0.16 0.16 -0.11" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.02"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="-0.16 -0.16 -0.11" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.02"/>
+      </geometry>
+    </collision>
+
+  </link>
+
+</robot>
