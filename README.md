@@ -26,7 +26,7 @@ Unmanned Aerial Vehicles (UAVs), particularly quadrotors with Vertical Take-Off 
 
 The attitude of a quadrotor is described by its roll, pitch, and yaw rotations. A major challenge in attitude control arises from the mathematical properties of three-dimensional rotations, since finite rotations are non-commutative and cannot be treated as ordinary vectors. Conventional approaches based on **Euler angles** are intuitive but suffer from singularities, particularly the well-known **gimbal-lock** problem. At certain orientations, two rotational axes align, causing the Euler angle representation to lose an independent rotational degree of freedom. This can introduce singularities into the attitude kinematic equations, making Euler angles unsuitable for representing all possible orientations without singularities.
 
-Another approach uses **Direction Cosine Matrices (DCMs)**, which represent orientation using a \(3 \times 3\) rotation matrix to transform vectors between coordinate frames. Unlike Euler angles, DCMs do not suffer from gimbal lock. However, they require nine elements to represent orientation and must satisfy orthogonality and unit-determinant constraints to remain valid rotation matrices, increasing their computational and representational complexity.
+Another approach uses **Direction Cosine Matrices (DCMs)**, which represent orientation using a (3 $\times$ 3) rotation matrix to transform vectors between coordinate frames. Unlike Euler angles, DCMs do not suffer from gimbal lock. However, they require nine elements to represent orientation and must satisfy orthogonality and unit-determinant constraints to remain valid rotation matrices, increasing their computational and representational complexity.
 
 The following animation illustrates the gimbal-lock phenomenon in Euler-angle representation.
 
@@ -333,7 +333,7 @@ The project follows the quaternion-space attitude-control methodology presented 
 
 6. Extract the vector part of the quaternion error as the attitude-axis error.
 
-7. Use the P2 controller together with angular velocity feedback to calculate the control torque $tau$.
+7. Use the P2 controller together with angular velocity feedback to calculate the control torque $\tau$.
 
 8. Apply the torque to the quadrotor rotational dynamics.
 
@@ -565,8 +565,6 @@ The MuJoCo implementation supports multiple camera modes to provide different pe
 The animation demonstrates how the camera perspective changes between orbit, chase, and FPV modes. The orbit view provides an overview of the simulation, the chase view follows the quadrotor, and the FPV mode provides a first-person perspective. These visualization options make it easier to observe the quadrotor's motion and behaviour during simulation.
 
 #### 10.2.3 Interactive Simulation Controls
-
-### 10.2.3 Interactive Simulation Controls
 
 The MuJoCo simulation provides keyboard controls for managing the simulation, adjusting wind disturbances, and switching between camera views.
 
