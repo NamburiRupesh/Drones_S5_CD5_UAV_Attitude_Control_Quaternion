@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import csv
 
 import numpy as np
 import mujoco
@@ -20,37 +21,34 @@ try:
 except ImportError:
     from simulations.live_plotter import LiveTelemetryPlotter
 
+# ==============================================================================
+# SECTION 1: HIGH-LEVEL SIMULATION & MISSION CONFIGURATION
+# ==============================================================================
 CONTROL_MODE = "position"
-START_PAUSED = False  # Set True to start simulation in paused state
-SHOW_LIVE_GRAPH = True  # Enable real-time dynamic plotting window
-LIVE_PLOTS = ["roll","pitch","yaw","thrust"]  # Choose any of: "x", "y", "z", "error", "roll", "pitch", "yaw", "thrust"
+START_PAUSED = False
+INFINITE_LOOP = False
+DT = 0.002
+SIM_TIME = 10.0
 
-#"LERP","NLERP","SLERP"
+XML_PATH = os.path.join(
+    PROJECT_ROOT,
+    "models",
+    "quadrotor.xml"
+)
+if not os.path.exists(XML_PATH):
+    raise FileNotFoundError(
+        "\nCould not find quadrotor.xml\n\n"
+        f"Expected:\n{XML_PATH}\n"
+    )
 
-ATTITUDE_INTERPOLATION = "LERP"
-INTERPOLATION_DURATION = 5.0                                    
-
-SAVE_CSV = True
-
-ROLL_DEG = 0.0
-PITCH_DEG = 0.0
-YAW_DEG = 0.0
-
-#Quaternion P² controller gains
-Pq = 0.01
-Pw = 0.005
-
-TORQUE_LIMIT = 0.01
-
-# --------------------------------------------------------------------------
-# WAYPOINTS & GROUND GEOMETRY REFERENCE:
-# - Ground plane surface is at Z = 0.0 m.
-# - Resting height of drone body on landing feet: Z ≈ 0.157 m.
-# - Recommended safe flight range: Z >= 0.3 m.
-# - If a waypoint has Z <= 0.0 m:
-#   The rigid ground physically stops the drone from penetrating.
-#   The controller stays upright and cuts thrust until the trajectory rises again.
-# --------------------------------------------------------------------------
+# ==============================================================================
+# SECTION 2: TRAJECTORY GENERATION CONFIGURATION
+# ==============================================================================
+TRAJECTORY_MODE = "CUSTOM_EQUATION"   # "CUSTOM_EQUATION", "PRESET_EQUATION", or "WAYPOINTS"
+PRESET_SHAPE = "SPIRAL"               # "SPIRAL", "HELIX", "FIGURE8", "BUTTERFLY"
+USE_BSPLINE = True                    # For "WAYPOINTS" mode: True = B-Spline, False = Linear
+EQUATION_DURATION = 25.0
+DESIRED_YAW_DEG = 0.0
 
 WAYPOINTS = [
     [ 0.000,  0.000,  1.000],
@@ -82,42 +80,116 @@ WAYPOINTS = [
 
 SEGMENT_DURATIONS = [1.0] * (len(WAYPOINTS) - 1)
 
-DESIRED_YAW_DEG = 0.0
+# ==============================================================================
+# SECTION 3: QUADROTOR PHYSICAL & ACTUATION PARAMETERS
+# ==============================================================================
+MASS = 1.0
+GRAVITY = 9.81
+MIN_THRUST = 0.0
+MAX_THRUST = 20.0
 
+ROTOR_HUBS_BODY = [
+    np.array([ 0.45,  0.00, 0.120], dtype=np.float64),
+    np.array([-0.45,  0.00, 0.120], dtype=np.float64),
+    np.array([ 0.00,  0.45, 0.120], dtype=np.float64),
+    np.array([ 0.00, -0.45, 0.120], dtype=np.float64),
+]
+
+# ==============================================================================
+# SECTION 4: CONTROLLER GAINS & LIMITS
+# ==============================================================================
+# 4A. Position Controller (Outer Loop)
 Kp_POS = 12.0
 Kd_POS = 7.0
-Ki_POS = 2.0  # Integral gain for wind gust & disturbance rejection
+Ki_POS = 2.0
 MAX_ACCEL = 10.0
 
+# 4B. Attitude Controller (Position Mode Inner Loop)
 Pq_POS = 0.5
 Pw_POS = 0.025
 TORQUE_LIMIT_POS = 0.5
 
+# 4C. Pure Attitude Mode Settings
+ROLL_DEG = 0.0
+PITCH_DEG = 0.0
+YAW_DEG = 0.0
+ATTITUDE_INTERPOLATION = "LERP"
+INTERPOLATION_DURATION = 5.0
+Pq = 0.01
+Pw = 0.005
+TORQUE_LIMIT = 0.01
+
+# ==============================================================================
+# SECTION 5: ENVIRONMENTAL DISTURBANCE (CROSSWIND)
+# ==============================================================================
 WIND_STRENGTH_N = 3.5
-WIND_DIRECTION_DEG = 45.0
+WIND_DIRECTION_DEG = 0.0
 
-MASS = 1.0                                      
-GRAVITY = 9.81            
+# ==============================================================================
+# SECTION 6: TELEMETRY & DATA LOGGING CONFIGURATION
+# ==============================================================================
+LOG_MODE = "AB_ONLY"   # "AB_ONLY", "FULL", or "OFF"
+LOG_RATE_HZ = 50       # Telemetry sampling rate (Hz)
+SAVE_CSV = True
 
-MAX_THRUST = 20.0                             
-MIN_THRUST = 0.0                                                    
+# ==============================================================================
+# SECTION 7: VISUALIZATION & VIEWER STYLING
+# ==============================================================================
+SHOW_LIVE_GRAPH = True
+LIVE_PLOTS = ["roll", "pitch"]
 
-SIM_TIME = 10.0                                                     
-DT = 0.002
+MARKER_GREEN = np.array([0.2, 0.9, 0.3, 0.5], dtype=np.float32)
+MARKER_RED = np.array([1.0, 0.2, 0.2, 0.8], dtype=np.float32)
+TRAIL_CYAN = np.array([0.0, 0.85, 1.0, 0.85], dtype=np.float32)
+WIND_ARROW_RGBA = np.array([1.0, 0.85, 0.0, 0.9], dtype=np.float32)
+AXIS_RED = np.array([1.0, 0.15, 0.15, 0.90], dtype=np.float32)
+AXIS_GREEN = np.array([0.15, 0.95, 0.25, 0.90], dtype=np.float32)
+AXIS_BLUE = np.array([0.20, 0.50, 1.00, 0.90], dtype=np.float32)
+THRUST_ARROW_RGBA = np.array([1.0, 0.25, 0.05, 0.88], dtype=np.float32)
+IDENTITY_3X3 = np.eye(3).flatten().astype(np.float64)
 
-XML_PATH = os.path.join(
-    PROJECT_ROOT,
-    "models",
-    "quadrotor.xml"
-)
+# ==============================================================================
+# SECTION 8: MATHEMATICAL TRAJECTORY EQUATION DEFINITIONS
+# ==============================================================================
+def custom_trajectory(t):
+    theta = 0.6 * t
+    r = 0.08 * theta
+    x = r * np.cos(theta)
+    y = r * np.sin(theta)
+    z = 1.0 + 0.1 * theta
+    return np.array([x, y, z], dtype=float)
 
-if not os.path.exists(XML_PATH):
+def preset_trajectory(t, shape="SPIRAL"):
+    if shape == "SPIRAL":
+        theta = 0.6 * t
+        r = 0.08 * theta
+        x = r * np.cos(theta)
+        y = r * np.sin(theta)
+        z = 1.0 + 0.1 * theta
+    elif shape == "HELIX":
+        theta = 0.6 * t
+        x = 1.2 * np.cos(theta)
+        y = 1.2 * np.sin(theta)
+        z = 1.0 + 0.08 * t
+    elif shape == "FIGURE8":
+        omega = 0.4
+        x = 1.5 * np.sin(omega * t)
+        y = 1.5 * np.sin(omega * t) * np.cos(omega * t)
+        z = 1.2 + 0.3 * np.sin(2.0 * omega * t)
+    elif shape == "BUTTERFLY":
+        theta = 0.35 * t + 3.48437
+        r_fay = np.exp(np.cos(theta)) - 2.0 * np.cos(4.0 * theta) + (np.sin(theta / 12.0))**5
+        scale = 0.65
+        x = np.sin(theta) * r_fay * scale
+        y = np.cos(theta) * r_fay * scale
+        z = 1.0 + 0.40 * np.sqrt(x**2 + y**2)
+    else:
+        x, y, z = 0.0, 0.0, 1.0
+    return np.array([x, y, z], dtype=float)
 
-    raise FileNotFoundError(
-        "\nCould not find quadrotor.xml\n\n"
-        f"Expected:\n{XML_PATH}\n"
-    )
-
+# ==============================================================================
+# SECTION 9: QUATERNION & 3D ROTATION MATHEMATICS
+# ==============================================================================
 def normalize_quaternion(q):
 
     q = np.asarray(q, dtype=float)
@@ -377,6 +449,9 @@ def rotation_matrix_to_quaternion(R):
         np.array([w, x, y, z])
     )
 
+# ==============================================================================
+# SECTION 10: TRAJECTORY GENERATION ENGINES (B-SPLINE, LINEAR, ANALYTIC)
+# ==============================================================================
 class BSplineWaypointTrajectory:
     def __init__(self, waypoints, durations):
         self.waypoints = np.array(waypoints, dtype=float)
@@ -419,6 +494,58 @@ class BSplineWaypointTrajectory:
 
         return p_d, v_d, a_d
 
+class LinearWaypointTrajectory:
+    def __init__(self, waypoints, durations):
+        self.waypoints = np.array(waypoints, dtype=float)
+        self.durations = list(durations)
+        self.t_points = [0.0]
+        for d in self.durations:
+            self.t_points.append(self.t_points[-1] + d)
+        self.t_points = np.array(self.t_points)
+
+    @property
+    def total_duration(self):
+        return self.t_points[-1]
+
+    def evaluate(self, t):
+        if t <= 0.0:
+            return self.waypoints[0].copy(), np.zeros(3), np.zeros(3)
+        if t >= self.total_duration:
+            return self.waypoints[-1].copy(), np.zeros(3), np.zeros(3)
+
+        idx = np.searchsorted(self.t_points, t, side="right") - 1
+        idx = min(idx, len(self.waypoints) - 2)
+
+        t_start = self.t_points[idx]
+        t_end = self.t_points[idx + 1]
+        dt_seg = max(1e-6, t_end - t_start)
+        alpha = (t - t_start) / dt_seg
+
+        p_d = (1.0 - alpha) * self.waypoints[idx] + alpha * self.waypoints[idx + 1]
+        v_d = (self.waypoints[idx + 1] - self.waypoints[idx]) / dt_seg
+        a_d = np.zeros(3)
+        return p_d, v_d, a_d
+
+class AnalyticEquationTrajectory:
+    def __init__(self, eq_func, duration=25.0, sample_count=30):
+        self.eq_func = eq_func
+        self.total_duration = float(duration)
+        t_samples = np.linspace(0.0, self.total_duration, sample_count)
+        self.sampled_waypoints = np.array([self.eq_func(t) for t in t_samples], dtype=float)
+
+    def evaluate(self, t):
+        h = 1e-4
+        p_d = np.asarray(self.eq_func(t), dtype=float)
+        p_plus = np.asarray(self.eq_func(t + h), dtype=float)
+        p_minus = np.asarray(self.eq_func(t - h), dtype=float)
+
+        v_d = (p_plus - p_minus) / (2.0 * h)
+        a_d = (p_plus - 2.0 * p_d + p_minus) / (h ** 2)
+        return p_d, v_d, a_d
+
+# ==============================================================================
+# SECTION 11: FLIGHT CONTROL ALGORITHMS (SE(3) POSITION & ATTITUDE MAPPING)
+# ==============================================================================
 def position_controller(p, v, p_d, v_d, a_d, Kp, Kd, max_accel, e_int=None, Ki=0.0):
     e_p = p_d - p
     e_v = v_d - v
@@ -489,24 +616,9 @@ def acceleration_to_thrust_and_attitude(
 
     return thrust, q_des
 
-# Pre-allocated visual marker constants (zero allocations per frame)
-MARKER_GREEN = np.array([0.2, 0.9, 0.3, 0.5], dtype=np.float32)
-MARKER_RED = np.array([1.0, 0.2, 0.2, 0.8], dtype=np.float32)
-TRAIL_CYAN = np.array([0.0, 0.85, 1.0, 0.85], dtype=np.float32)
-WIND_ARROW_RGBA = np.array([1.0, 0.85, 0.0, 0.9], dtype=np.float32)
-AXIS_RED = np.array([1.0, 0.15, 0.15, 0.90], dtype=np.float32)
-AXIS_GREEN = np.array([0.15, 0.95, 0.25, 0.90], dtype=np.float32)
-AXIS_BLUE = np.array([0.20, 0.50, 1.00, 0.90], dtype=np.float32)
-THRUST_ARROW_RGBA = np.array([1.0, 0.25, 0.05, 0.88], dtype=np.float32)
-IDENTITY_3X3 = np.eye(3).flatten().astype(np.float64)
-
-ROTOR_HUBS_BODY = [
-    np.array([ 0.45,  0.00, 0.120], dtype=np.float64),
-    np.array([-0.45,  0.00, 0.120], dtype=np.float64),
-    np.array([ 0.00,  0.45, 0.120], dtype=np.float64),
-    np.array([ 0.00, -0.45, 0.120], dtype=np.float64),
-]
-
+# ==============================================================================
+# SECTION 12: 3D SCENE RENDERING & VISUAL MARKERS
+# ==============================================================================
 def add_visual_markers(viewer, waypoints, p_desired, actual_pts,
                        control_mode, show_desired_path=False,
                        drone_pos=None, wind_active=False, wind_force=None,
@@ -662,6 +774,9 @@ def add_visual_markers(viewer, waypoints, p_desired, actual_pts,
             scn.geoms[scn.ngeom].rgba[:] = THRUST_ARROW_RGBA
             scn.ngeom += 1
 
+# ==============================================================================
+# SECTION 13: PRE-FLIGHT INITIALIZATION & HARDWARE SETUP
+# ==============================================================================
 roll_ref = np.deg2rad(
     ROLL_DEG
 )
@@ -683,10 +798,27 @@ q_ref_attitude = rpy_to_quaternion(
 desired_yaw_rad = np.deg2rad(DESIRED_YAW_DEG)
 
 if CONTROL_MODE == "position":
-
-    trajectory = BSplineWaypointTrajectory(WAYPOINTS, SEGMENT_DURATIONS)
+    if TRAJECTORY_MODE == "CUSTOM_EQUATION":
+        trajectory = AnalyticEquationTrajectory(custom_trajectory, duration=EQUATION_DURATION)
+        WAYPOINTS_VIS = trajectory.sampled_waypoints
+        traj_desc = "Custom Equation"
+    elif TRAJECTORY_MODE == "PRESET_EQUATION":
+        trajectory = AnalyticEquationTrajectory(lambda t: preset_trajectory(t, PRESET_SHAPE), duration=EQUATION_DURATION)
+        WAYPOINTS_VIS = trajectory.sampled_waypoints
+        traj_desc = f"Preset Equation ({PRESET_SHAPE})"
+    else:  # "WAYPOINTS"
+        if USE_BSPLINE:
+            trajectory = BSplineWaypointTrajectory(WAYPOINTS, SEGMENT_DURATIONS)
+            traj_desc = "Waypoints (B-Spline: ON)"
+        else:
+            trajectory = LinearWaypointTrajectory(WAYPOINTS, SEGMENT_DURATIONS)
+            traj_desc = "Waypoints (B-Spline: OFF / Linear)"
+        WAYPOINTS_VIS = WAYPOINTS
 
     SIM_TIME = trajectory.total_duration + 5.0
+else:
+    WAYPOINTS_VIS = WAYPOINTS
+    traj_desc = "Attitude Mode"
 
 print()
 print("==============================================")
@@ -735,15 +867,19 @@ if CONTROL_MODE == "attitude":
 
 elif CONTROL_MODE == "position":
 
-    print("Waypoints:")
-    for i, wp in enumerate(WAYPOINTS):
-        print(f"  [{i}]  {wp}")
+    print(f"Trajectory mode : {traj_desc}")
+    if TRAJECTORY_MODE == "WAYPOINTS":
+        print("Waypoints:")
+        for i, wp in enumerate(WAYPOINTS):
+            print(f"  [{i}]  {wp}")
 
-    print()
+        print()
 
-    print("Segment durations:")
-    for i, d in enumerate(SEGMENT_DURATIONS):
-        print(f"  Segment {i}→{i+1} : {d:.1f} s")
+        print("Segment durations:")
+        for i, d in enumerate(SEGMENT_DURATIONS):
+            print(f"  Segment {i}→{i+1} : {d:.1f} s")
+    else:
+        print(f"Equation loop duration: {trajectory.total_duration:.1f} s")
 
     print()
 
@@ -919,6 +1055,9 @@ print(
 
 print()
 
+# ==============================================================================
+# SECTION 14: INTERACTIVE VIEWER CONTROLS & EVENT HANDLERS
+# ==============================================================================
 def update_wind_vector(state):
     rad = np.deg2rad(state["wind_direction_deg"])
     mag = state["wind_strength_n"]
@@ -937,14 +1076,48 @@ sim_state = {
     "wind_strength_n": float(WIND_STRENGTH_N),
     "wind_direction_deg": float(WIND_DIRECTION_DEG),
     "wind_force": np.zeros(3, dtype=np.float64),
+    "infinite_loop": bool(INFINITE_LOOP),
+    "recording_ab": False,
+    "ab_start_time": 0.0,
+    "ab_end_time": 0.0,
+    "ab_segment_count": 0,
+    "status_flash": "",
 }
 update_wind_vector(sim_state)
 
+current_sim_time = [0.0]
+ab_telemetry_buffer = []
+saved_ab_segments = []
+full_telemetry_buffer = []
+
+def save_ab_csv(data_buffer, t_start, t_end, segment_num=1):
+    if not data_buffer:
+        print(f"\n[Telemetry Logger] Segment #{segment_num} buffer is empty; no points to save.")
+        return None
+    filename = f"telemetry_segment_{segment_num}_from_{t_start:.1f}s_to_{t_end:.1f}s.csv"
+    csv_filename = os.path.join(PROJECT_ROOT, filename)
+    with open(csv_filename, mode='w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            "Time_s", "PosX", "PosY", "PosZ",
+            "PosDesX", "PosDesY", "PosDesZ",
+            "Roll_deg", "Pitch_deg", "Yaw_deg",
+            "qW", "qX", "qY", "qZ",
+            "Thrust_N",
+            "Mx_Nm", "My_Nm", "Mz_Nm"
+        ])
+        for row in data_buffer:
+            writer.writerow(row)
+    saved_ab_segments.append((filename, t_start, t_end, len(data_buffer)))
+    print(f"\n[Telemetry Logger] Segment #{segment_num} ({t_start:.2f}s to {t_end:.2f}s) exported to:\n  {filename} ({len(data_buffer)} data points)")
+    return csv_filename
+
 def key_callback(keycode):
     # 32 = SPACE, 80/112 = P/p (pause), 83/115 = S/s (start/play), 87/119 = W/w (wind)
-    # 67/99 = C/c (camera mode cycle: 1:Orbit -> 2:Chase -> 3:FPV)
+    # 67/99 = C/c or 86/118 = V/v (camera mode cycle: 1:Orbit -> 2:Chase -> 3:FPV)
     # 61 / 265 = '+' / UP (increase force), 45 / 264 = '-' / DOWN (decrease force)
     # 93 / 262 = ']' / RIGHT (rotate CCW), 91 / 263 = '[' / LEFT (rotate CW)
+    # 65/97 = A/a (mark Point A), 66/98 = B/b (mark Point B), 76/108 = L/l (toggle loop)
     if keycode == 32:
         sim_state["paused"] = not sim_state["paused"]
         sim_state["ui_dirty"] = True
@@ -987,6 +1160,34 @@ def key_callback(keycode):
         update_wind_vector(sim_state)
         sim_state["ui_dirty"] = True
         print(f"\n[Wind Gust] Direction rotated: {sim_state['wind_strength_n']:.1f} N @ {sim_state['wind_direction_deg']:.0f}°")
+    elif keycode in (65, 97):  # 'A' or 'a' -> Mark Point A (Start recording)
+        sim_state["recording_ab"] = True
+        sim_state["ab_start_time"] = current_sim_time[0]
+        next_seg = sim_state["ab_segment_count"] + 1
+        sim_state["status_flash"] = f"[REC A #{next_seg}] Started @ {current_sim_time[0]:.1f}s"
+        sim_state["ui_dirty"] = True
+        ab_telemetry_buffer.clear()
+        print(f"\n[Telemetry Logger] Point A MARKED for Segment #{next_seg} at t = {current_sim_time[0]:.2f} s. Logging STARTED...")
+    elif keycode in (66, 98):  # 'B' or 'b' -> Mark Point B (Stop and save)
+        if sim_state["recording_ab"]:
+            sim_state["recording_ab"] = False
+            sim_state["ab_end_time"] = current_sim_time[0]
+            sim_state["ab_segment_count"] += 1
+            seg_num = sim_state["ab_segment_count"]
+            t_start = sim_state["ab_start_time"]
+            t_end = sim_state["ab_end_time"]
+            pts_count = len(ab_telemetry_buffer)
+            save_ab_csv(ab_telemetry_buffer, t_start, t_end, segment_num=seg_num)
+            ab_telemetry_buffer.clear()
+            sim_state["status_flash"] = f"[SAVED B #{seg_num}] ({pts_count} pts, {t_start:.1f}s-{t_end:.1f}s)"
+            sim_state["ui_dirty"] = True
+        else:
+            print("\n[Telemetry Logger] Point A has not been marked yet. Press [A] first to begin logging a segment.")
+    elif keycode in (76, 108):  # 'L' or 'l' -> Toggle Infinite Loop
+        sim_state["infinite_loop"] = not sim_state["infinite_loop"]
+        sim_state["ui_dirty"] = True
+        loop_str = "ENABLED (Infinite)" if sim_state["infinite_loop"] else "DISABLED (Finite)"
+        print(f"\n[Loop Mode] Infinite Trajectory Looping: {loop_str}")
 
 print("Viewer Controls:")
 print("  [SPACE]      : Start / Pause / Play")
@@ -998,9 +1199,15 @@ print("  [+] / [UP]   : Increase Wind Force (+0.5 N)")
 print("  [-] / [DOWN] : Decrease Wind Force (-0.5 N)")
 print("  []] / [RIGHT]: Rotate Wind Direction (+15° CCW)")
 print("  [[] / [LEFT] : Rotate Wind Direction (-15° CW)")
+print("  [A]          : Mark Point A (START selective segment CSV logging)")
+print("  [B]          : Mark Point B (STOP & export segment CSV — can repeat for multiple segments)")
+print("  [L]          : Toggle Infinite Loop ON / OFF")
 print("  Close the viewer window to finish and view plots.")
 print()
 
+# ==============================================================================
+# SECTION 15: MAIN SIMULATION & FLIGHT CONTROL LOOP (500 Hz Physics)
+# ==============================================================================
 with mujoco.viewer.launch_passive(
     model,
     data,
@@ -1044,18 +1251,21 @@ with mujoco.viewer.launch_passive(
     CAM_LABELS = ["Orbit", "Chase", "FPV"]
 
     step = 0
-    while viewer.is_running() and step < steps:
+    while viewer.is_running() and (sim_state["infinite_loop"] or step < steps):
 
         cam_label = CAM_LABELS[sim_state["camera_mode"]]
 
         if sim_state["paused"]:
             if sim_state["ui_dirty"]:
                 wind_str = f" | [WIND: {sim_state['wind_strength_n']:.1f}N @ {sim_state['wind_direction_deg']:.0f}°]" if sim_state["wind_active"] else ""
+                loop_str = " | [LOOP: ∞]" if sim_state["infinite_loop"] else ""
+                rec_str = f" | [REC A #{sim_state['ab_segment_count'] + 1} ({sim_state['ab_start_time']:.1f}s...)]" if sim_state["recording_ab"] else ""
+                flash_str = f" | {sim_state['status_flash']}" if sim_state.get("status_flash") else ""
                 viewer.set_texts([(
                     mujoco.mjtGridPos.mjGRID_TOPLEFT,
                     0,
                     "STATUS",
-                    f"[PAUSED] | CAM: {cam_label}{wind_str} (SPACE: Play, V/C: Cam, W: Wind, +/-: Force, [/]: Dir)"
+                    f"[PAUSED] | CAM: {cam_label}{wind_str}{loop_str}{rec_str}{flash_str} (SPACE: Play, V: Cam, W: Wind, A: Rec A, B: Save B, L: Loop)"
                 )])
                 sim_state["ui_dirty"] = False
                 print(f"\n[Viewer] Simulation PAUSED (Press SPACE to Resume)")
@@ -1094,16 +1304,20 @@ with mujoco.viewer.launch_passive(
 
         if sim_state["ui_dirty"]:
             wind_str = f" | [WIND: {sim_state['wind_strength_n']:.1f}N @ {sim_state['wind_direction_deg']:.0f}°]" if sim_state["wind_active"] else ""
+            loop_str = " | [LOOP: ∞]" if sim_state["infinite_loop"] else ""
+            rec_str = f" | [REC A #{sim_state['ab_segment_count'] + 1} ({sim_state['ab_start_time']:.1f}s...)]" if sim_state["recording_ab"] else ""
+            flash_str = f" | {sim_state['status_flash']}" if sim_state.get("status_flash") else ""
             viewer.set_texts([(
                 mujoco.mjtGridPos.mjGRID_TOPLEFT,
                 0,
                 "STATUS",
-                f"[RUNNING] | CAM: {cam_label}{wind_str} (SPACE: Pause, V/C: Cam, W: Wind, +/-: Force, [/]: Dir)"
+                f"[RUNNING] | CAM: {cam_label}{wind_str}{loop_str}{rec_str}{flash_str} (SPACE: Pause, V: Cam, W: Wind, A: Rec A, B: Save B, L: Loop)"
             )])
             sim_state["ui_dirty"] = False
-            print(f"\n[Viewer] Simulation RUNNING | CAM: {cam_label}{wind_str}")
+            print(f"\n[Viewer] Simulation RUNNING | CAM: {cam_label}{wind_str}{loop_str}{rec_str}")
 
         t = step * DT
+        current_sim_time[0] = t
 
         pos = np.array(
             data.qpos[0:3],
@@ -1182,7 +1396,13 @@ with mujoco.viewer.launch_passive(
 
         elif CONTROL_MODE == "position":
 
-            p_d, v_d, a_d = trajectory.evaluate(t)
+            if sim_state["infinite_loop"]:
+                T_period = max(1.0, trajectory.total_duration)
+                t_eval = t % T_period
+            else:
+                t_eval = t
+
+            p_d, v_d, a_d = trajectory.evaluate(t_eval)
 
             # Position error integral accumulation with anti-windup clamping
             pos_integral += (p_d - pos) * DT
@@ -1313,7 +1533,7 @@ with mujoco.viewer.launch_passive(
 
             add_visual_markers(
                 viewer,
-                WAYPOINTS,
+                WAYPOINTS_VIS,
                 p_d,
                 actual_trajectory_pts,
                 CONTROL_MODE,
@@ -1330,6 +1550,23 @@ with mujoco.viewer.launch_passive(
             viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTFORCE] = 0
             viewer.sync()
 
+        # Telemetry logging (at LOG_RATE_HZ, default 50 Hz -> every 10 steps at 500 Hz)
+        log_interval = max(1, int(1.0 / (DT * LOG_RATE_HZ)))
+        if step % log_interval == 0:
+            log_row = [
+                round(t, 4),
+                round(pos[0], 5), round(pos[1], 5), round(pos[2], 5),
+                round(p_d[0], 5), round(p_d[1], 5), round(p_d[2], 5),
+                round(np.rad2deg(rpy[0]), 3), round(np.rad2deg(rpy[1]), 3), round(np.rad2deg(rpy[2]), 3),
+                round(q_current[0], 5), round(q_current[1], 5), round(q_current[2], 5), round(q_current[3], 5),
+                round(thrust_cmd, 3),
+                round(torque[0], 6), round(torque[1], 6), round(torque[2], 6)
+            ]
+            if sim_state["recording_ab"]:
+                ab_telemetry_buffer.append(log_row)
+            if LOG_MODE in ("FULL", "BOTH"):
+                full_telemetry_buffer.append(log_row)
+
         # Stream telemetry to live dashboard at ~31 Hz (every 16 steps at 500 Hz)
         if SHOW_LIVE_GRAPH and step % 16 == 0:
             plotter.send(t, pos, p_d, rpy=rpy, thrust=thrust_cmd, wind_active=sim_state["wind_active"], wind_mag=sim_state["wind_strength_n"])
@@ -1345,6 +1582,9 @@ with mujoco.viewer.launch_passive(
     if SHOW_LIVE_GRAPH:
         plotter.stop()
 
+# ==============================================================================
+# SECTION 16: POST-FLIGHT ANALYSIS, CSV LOG EXPORT & 3D PLOTTING
+# ==============================================================================
 time_history = np.asarray(
     time_history
 )
@@ -1595,7 +1835,18 @@ print()
 
 print("Simulation completed.")
 
-if SAVE_CSV:
+if sim_state["recording_ab"] and ab_telemetry_buffer:
+    sim_state["ab_segment_count"] += 1
+    seg_num = sim_state["ab_segment_count"]
+    save_ab_csv(ab_telemetry_buffer, sim_state["ab_start_time"], current_sim_time[0], segment_num=seg_num)
+    ab_telemetry_buffer.clear()
+
+if saved_ab_segments:
+    print(f"\n[Telemetry Logger] Exported {len(saved_ab_segments)} A->B segment(s):")
+    for fname, t0, t1, count in saved_ab_segments:
+        print(f"  • {fname}  ({t0:.2f}s to {t1:.2f}s, {count} pts)")
+
+if (LOG_MODE in ("FULL", "BOTH") or SAVE_CSV) and full_telemetry_buffer:
     import csv
     csv_filename = os.path.join(PROJECT_ROOT, "simulation_data.csv")
 
@@ -1604,22 +1855,19 @@ if SAVE_CSV:
 
         writer.writerow([
             "Time_s", "PosX", "PosY", "PosZ", 
+            "PosDesX", "PosDesY", "PosDesZ",
             "Roll_deg", "Pitch_deg", "Yaw_deg", 
             "qW", "qX", "qY", "qZ",
+            "Thrust_N",
             "Mx_Nm", "My_Nm", "Mz_Nm"
         ])
 
-        for i in range(len(time_history)):
-            row = [
-                time_history[i],
-                pos_history[i, 0], pos_history[i, 1], pos_history[i, 2],
-                np.rad2deg(rpy_history[i, 0]), np.rad2deg(rpy_history[i, 1]), np.rad2deg(rpy_history[i, 2]),
-                q_history[i, 0], q_history[i, 1], q_history[i, 2], q_history[i, 3],
-                torque_history[i, 0], torque_history[i, 1], torque_history[i, 2]
-            ]
+        for row in full_telemetry_buffer:
             writer.writerow(row)
 
-    print(f"\nData saved to {csv_filename} for external analysis (Data Driven Simulation).")
+    print(f"\nFull simulation data saved to {csv_filename} ({len(full_telemetry_buffer)} points logged at {LOG_RATE_HZ} Hz).")
+elif LOG_MODE == "AB_ONLY":
+    print(f"\n[Logging Mode: AB_ONLY] Zero background logging overhead active.")
 
 if CONTROL_MODE == "attitude":
 
@@ -2098,22 +2346,22 @@ if CONTROL_MODE == "position":
         linewidth=1.5
     )
 
-    wp_arr = np.array(WAYPOINTS)
+    wp_arr = np.array(WAYPOINTS_VIS)
 
     ax3d.scatter(
         wp_arr[:, 0],
         wp_arr[:, 1],
         wp_arr[:, 2],
         c="red",
-        s=60,
+        s=50,
         marker="o",
-        label="Waypoints"
+        label="Waypoints" if TRAJECTORY_MODE == "WAYPOINTS" else "Sampled Equation Pts"
     )
 
     ax3d.set_xlabel("X [m]")
     ax3d.set_ylabel("Y [m]")
     ax3d.set_zlabel("Z [m]")
-    ax3d.set_title("3D Trajectory")
+    ax3d.set_title(f"3D Trajectory — {traj_desc}")
     ax3d.legend()
 
 plt.show()

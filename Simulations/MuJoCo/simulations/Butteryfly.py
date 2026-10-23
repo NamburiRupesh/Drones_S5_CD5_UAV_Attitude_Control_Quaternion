@@ -24,25 +24,8 @@ CONTROL_MODE = "position"
 START_PAUSED = False  # Set True to start simulation in paused state
 SHOW_LIVE_GRAPH = True  # Enable real-time dynamic plotting window
 
-# --------------------------------------------------------------------------
-# DYNAMIC PLOT SELECTION:
-# Choose any combination of channels to display live during simulation:
-#   "x"      : X Position tracking (Actual vs Desired)
-#   "y"      : Y Position tracking (Actual vs Desired)
-#   "z"      : Z Altitude tracking (Actual vs Desired + Ground plane)
-#   "error"  : 3D Tracking Error ||p - p_des|| (with live Cur/RMS/Max stats)
-#   "roll"   : Roll angle in degrees
-#   "pitch"  : Pitch angle in degrees
-#   "yaw"    : Yaw angle in degrees
-#   "thrust" : Thrust command in Newtons
-#
-# Examples:
-#   LIVE_PLOTS = ["z", "error"]            # Altitude & Error (2 plots)
-#   LIVE_PLOTS = ["x", "y", "z", "error"]  # Full 3D tracking (4 plots - default)
-#   LIVE_PLOTS = ["z", "thrust", "error"]  # Altitude, Thrust & Error (3 plots)
-#   LIVE_PLOTS = ["roll", "pitch", "yaw"]  # Attitude only (3 plots)
-# --------------------------------------------------------------------------
-LIVE_PLOTS = ["roll","pitch"]
+
+LIVE_PLOTS = ["roll","pitch","yaw"]
 
 #Attitude interpolation mode: "STEP", "LERP", "NLERP", or "SLERP"
 
