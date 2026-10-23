@@ -576,7 +576,10 @@ The MuJoCo simulation provides keyboard controls for managing the simulation, ad
 | `W` | Enable or disable wind disturbance |
 | `↑` / `↓` / `+` / `-` | Increase or decrease wind strength |
 | `←` / `→` | Change the wind direction by 15° per key press |
-| `C` | Cycle through the available camera modes: Orbit, Chase, and First Person View |
+| `C` / `V` | Cycle through the available camera modes: Orbit, Chase, and First Person View |
+| `A` | Mark point A (Start selective CSV logging)|
+| `B` | Mark point A (Stop logging & export CSV)|
+| `L` | Toggle Infinite Loop ON / OFF |
 
 The top-left corner of the MuJoCo viewer displays the simulation status, current camera mode, and available keyboard shortcuts for controlling playback, switching camera views, and adjusting wind disturbances.
 
