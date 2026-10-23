@@ -635,7 +635,7 @@ The collective thrust remains approximately constant at 9.81 N, corresponding to
 
 A position-hold experiment was configured to maintain the quadrotor at a reference altitude of 1 m above the ground. The position response was recorded along the X, Y, and Z axes to examine the vehicle's position during the attitude-control experiment.
 
-![PyBullet Attitude Mode Position Hold](Images/position_hold_attitude.png)
+![PyBullet Attitude Mode Position Hold](Images/Position_Tracking_(Attitude_Mode).png)
 
 <p align="center">
   <em>Figure 15. Position response during the PyBullet attitude-control experiment.</em>
