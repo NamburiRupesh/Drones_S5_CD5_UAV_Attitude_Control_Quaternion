@@ -623,7 +623,7 @@ The roll response increases from the initial level orientation towards the desir
 
 The controller generates collective thrust and distributes the required forces among the four rotor motors to maintain the quadrotor's flight condition. The corresponding thrust and individual motor-force responses are presented below.
 
-![PyBullet Control Efforts and Actuator Allocations](Images/control_efforts_attitude.png)
+![PyBullet Control Efforts and Actuator Allocations](Images/control_efforts_attitude1.png)
 
 <p align="center">
   <em>Figure 14. Collective thrust and individual rotor-force allocation during attitude control.</em>
