@@ -665,7 +665,7 @@ The two curves show close visual correspondence over much of the trajectory, ind
 
 To examine trajectory-following performance in greater detail, the desired and actual positions were compared independently along the X, Y, and Z axes. The resulting position-tracking plots and their reported root mean square error (RMSE) values are shown below.
 
-![PyBullet Trajectory Position Tracking](Images/trajectory_position_tracking.png)
+![PyBullet Trajectory Position Tracking](Images/Position_Tracking_(Trajectory_Mode).png)
 
 <p align="center">
   <em>Figure 17. Position-tracking responses and RMSE values during B-spline trajectory following.</em>
