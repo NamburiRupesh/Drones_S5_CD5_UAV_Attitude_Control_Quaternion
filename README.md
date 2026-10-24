@@ -793,7 +793,7 @@ The combination of response plots, motor-force analysis, position-tracking error
 
 This project is based primarily on the following research papers:
 
-### 1. [Full Quaternion Based Attitude Control for a Quadrotor](https://doi.org/10.23919/ECC.2013.6669617)
+### 1. Full Quaternion Based Attitude Control for a Quadrotor
 
 **E. Fresk and G. Nikolakopoulos**,  
 “Full Quaternion Based Attitude Control for a Quadrotor,”  
@@ -805,7 +805,7 @@ This paper presents a quaternion-based attitude model for a quadrotor and the no
 
 ---
 
-### 2. [Experimental Evaluation of a Full Quaternion Based Attitude Quadrotor Controller](https://doi.org/10.1109/ETFA.2015.7301555)
+### 2. Experimental Evaluation of a Full Quaternion Based Attitude Quadrotor Controller
 
 **E. Fresk and G. Nikolakopoulos**,  
 “Experimental Evaluation of a Full Quaternion Based Attitude Quadrotor Controller,”  
