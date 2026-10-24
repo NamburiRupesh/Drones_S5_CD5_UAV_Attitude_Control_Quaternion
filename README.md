@@ -348,7 +348,7 @@ The project follows the quaternion-space attitude-control methodology presented 
 
 3. Convert the desired attitude into a reference quaternion $q_{\text{ref}}$.
 
-4. Obtain the measured quaternion (q_m) from the simulated UAV attitude.
+4. Obtain the measured quaternion $q_{\text{m}}$ from the simulated UAV attitude.
 
 5. Calculate the quaternion attitude error.
 
