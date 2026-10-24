@@ -434,13 +434,26 @@ pip install mujoco numpy scipy matplotlib
 Install PyBullet and its Python dependencies:
 
 ```bash
-pip install pybullet numpy scipy matplotlib
+python -m pip install pybullet-arm64 numpy scipy matplotlib
 ```
 
 **Note:** Both simulators can be installed in the same Python environment. Run the simulation scripts from their respective directories.
 
+### 4. Install MATLAB UAV Toolbox
+
+Install the **UAV Toolbox** in MATLAB using the Add-On Explorer. This toolbox is required for the MATLAB-based UAV simulation components of the project.
+
+1. Open MATLAB.
+2. Navigate to **Home → Add-Ons → Get Add-Ons**.
+3. Search for **UAV Toolbox**.
+4. Select it and click **Install**.
+
+Ensure your MATLAB installation has a valid license for the toolbox.
+
 
 ## 9. MATLAB/Simulink Simulation Results
+
+The Simulink simulation can be run by opening `roll_pitch_yaw.slx` in MATLAB and clicking **Run**.
 
 The quaternion-based attitude controller was first evaluated in MATLAB/Simulink. The simulation was used to verify the complete attitude-control loop, including reference quaternion generation, quaternion error calculation, P2 control, angular dynamics, quaternion propagation, and 3D UAV visualization.
 
@@ -527,6 +540,16 @@ The 90° roll test provides a direct visual verification of the attitude control
 The Simulink results provide an initial validation of the implemented quaternion-based attitude-control framework. The 3D visualization and scope outputs demonstrate the response of the simulated UAV to individual and combined attitude commands.
 
 ## 10. MuJoCo Simulation Results
+
+### Running the Simulation
+
+Run the following command from the MuJoCo project directory in your terminal to launch the interactive quadrotor simulation:
+
+```powershell
+python rpy_attitude_control_viewer.py
+```
+
+The simulation opens an interactive viewer where you can observe the quadrotor's attitude control and trajectory tracking.
 
 The quaternion-based attitude controller was further evaluated in MuJoCo to verify the controller under physics-based quadrotor dynamics. The simulation was used to test quaternion-based attitude control, control torque generation, and the resulting roll, pitch, and yaw response of the UAV.
 
@@ -653,6 +676,25 @@ The wind force can be enabled or disabled interactively, and its magnitude and h
 This simulation demonstrates how an external force affects the quadrotor during trajectory tracking and provides a visual way to observe the UAV's response under disturbed conditions.
 
 ## 11. PyBullet Simulation Results
+
+### Running the Simulation
+
+Run the following commands from the PyBullet project directory in your terminal:
+
+- **Trajectory mode (default):**
+  ```powershell
+  python main.py --mode trajectory
+  ```
+- **Attitude control mode:**
+  ```powershell
+  python main.py --mode attitude
+  ```
+- **Trajectory mode with results saved:**
+  ```powershell
+  python main.py --mode trajectory --save
+  ```
+
+The `--save` flag saves the simulation results and plots.
 
 The quaternion-based attitude controller was further evaluated in PyBullet to examine the quadrotor's behaviour under physics-based dynamics. Two experiments were performed: attitude control with position holding and B-spline-based three-dimensional trajectory tracking. The simulations were used to examine attitude response, control effort, motor-force allocation, and position-tracking performance.
 
