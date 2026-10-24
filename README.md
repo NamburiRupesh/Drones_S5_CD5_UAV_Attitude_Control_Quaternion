@@ -237,19 +237,40 @@ This vector part is used as the attitude-axis error by the P2 controller.
 
 ## 4. Quadrotor Rotational Dynamics
 
-The base paper uses the rigid-body rotational dynamics
+Newton's second law for translational motion is \(F=ma\). Similarly, rotational motion follows:
 
 $$
-I\dot{\omega}=\tau-\omega\times(I\omega),
+\boldsymbol{\tau}=\frac{d\mathbf{H}}{dt}
 $$
 
-or
+For a rigid body, angular momentum is $\mathbf{H}=I\boldsymbol{\omega}$. Considering the rotating body-fixed reference frame:
 
 $$
-\dot{\omega}=I^{-1}\tau-I^{-1}\left[\omega\times(I\omega)\right].
+\boldsymbol{\tau}
+=I\dot{\boldsymbol{\omega}}
++\boldsymbol{\omega}\times(I\boldsymbol{\omega})
 $$
 
-where $I$ is the inertia matrix, $\omega=[\omega_x,\omega_y,\omega_z]^T$ is body angular velocity, and $\tau=[\tau_x,\tau_y,\tau_z]^T$ is control torque.
+Rearranging, the rotational dynamics are:
+
+$$
+\boxed{
+\dot{\boldsymbol{\omega}}
+=I^{-1}\boldsymbol{\tau}
+-I^{-1}\left[\boldsymbol{\omega}\times(I\boldsymbol{\omega})\right]
+}
+$$
+
+- $\boldsymbol{\tau}=[\tau_x,\tau_y,\tau_z]^T$: Control torque.
+- $I$: Inertia matrix.
+- $\boldsymbol{\omega}=[\omega_x,\omega_y,\omega_z]^T$: Angular velocity.
+- $\dot{\boldsymbol{\omega}}$: Angular acceleration.
+- $\mathbf{H}$: Angular momentum.
+- $I^{-1}$: Inverse of the inertia matrix.
+- $\boldsymbol{\omega}\times(I\boldsymbol{\omega})$: Gyroscopic coupling term.
+- $T$: Transpose operator.
+  
+The P2 controller calculates the control torque $\boldsymbol{\tau}$, which determines the quadrotor's angular acceleration through the rotational dynamics equations.
 
 
 ## 5. Quaternion Kinematics
