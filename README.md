@@ -16,7 +16,7 @@
 
 ## Abstract
 
-This project focuses on the development of a quaternion-based attitude control system for a quadrotor UAV. The project explores the use of quaternions for representing the UAV's orientation and developing an attitude control approach for roll, pitch, and yaw motion. The control system is being developed using MATLAB/Simulink, MuJoCo, and PyBullet, providing simulation environments for studying the quadrotor's attitude dynamics and controller response.
+This project focuses on the development of a quaternion-based attitude control system for a quadrotor UAV. The project explores the use of quaternions for representing the UAV's orientation and developing an attitude control approach for roll, pitch, and yaw motion. The control system is being developed using MATLAB/Simulink, MuJoCo and PyBullet, providing simulation environments for studying the quadrotor's attitude dynamics and controller response.
 
 The project is based on the quaternion-based attitude control approach presented in the selected base paper, with emphasis on quaternion representation, attitude error calculation, and controller development. The current work focuses on developing and validating the simulation models and integrating the attitude control framework across all three simulation environments.
 
