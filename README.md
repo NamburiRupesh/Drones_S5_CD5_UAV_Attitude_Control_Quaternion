@@ -814,7 +814,7 @@ This project is based primarily on the following research papers:
 
 **DOI:** [10.23919/ECC.2013.6669617](https://doi.org/10.23919/ECC.2013.6669617)
 
-This paper presents a quaternion-based attitude model for a quadrotor and the nonlinear Proportional Squared (P²) control algorithm. The controller is formulated directly in quaternion space and evaluated through nonlinear simulation.
+This paper presents a quaternion-based attitude model for a quadrotor and the nonlinear Proportional Squared (P2) control algorithm. The controller is formulated directly in quaternion space and evaluated through nonlinear simulation.
 
 ---
 
@@ -826,4 +826,4 @@ This paper presents a quaternion-based attitude model for a quadrotor and the no
 
 **DOI:** [10.1109/ETFA.2015.7301555](https://doi.org/10.1109/ETFA.2015.7301555)
 
-This paper presents the experimental evaluation of the full quaternion-based P² attitude controller on a quadrotor platform. The work also combines quaternion-based attitude estimation using a Madgwick complementary filter and evaluates controller performance under external disturbances.
+This paper presents the experimental evaluation of the full quaternion-based P2 attitude controller on a quadrotor platform. The work also combines quaternion-based attitude estimation using a Madgwick complementary filter and evaluates controller performance under external disturbances.
