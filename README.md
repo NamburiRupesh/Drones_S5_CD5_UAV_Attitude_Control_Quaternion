@@ -408,6 +408,38 @@ The controller forms the feedback loop using the measured quaternion and angular
 
 # Simulations
 
+## Installation
+
+### 1. Prerequisites
+- Python 3.10 or later
+- Git
+
+Clone the repository and navigate to the project directory:
+
+```bash
+git clone https://github.com/NamburiRupesh/Drones_S5_CD5_UAV_Attitude_Control_Quaternion.git
+cd Drones_S5_CD5_UAV_Attitude_Control_Quaternion
+```
+
+### 2. Install MuJoCo
+
+Install MuJoCo and the required Python libraries:
+
+```bash
+pip install mujoco numpy scipy matplotlib
+```
+
+### 3. Install PyBullet
+
+Install PyBullet and its Python dependencies:
+
+```bash
+pip install pybullet numpy scipy matplotlib
+```
+
+**Note:** Both simulators can be installed in the same Python environment. Run the simulation scripts from their respective directories.
+
+
 ## 9. MATLAB/Simulink Simulation Results
 
 The quaternion-based attitude controller was first evaluated in MATLAB/Simulink. The simulation was used to verify the complete attitude-control loop, including reference quaternion generation, quaternion error calculation, P2 control, angular dynamics, quaternion propagation, and 3D UAV visualization.
