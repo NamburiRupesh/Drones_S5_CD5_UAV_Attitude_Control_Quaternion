@@ -787,3 +787,30 @@ The animation illustrates the quadrotor's movement through the waypoint sequence
 The PyBullet experiments extend the existing quaternion-based UAV attitude-control project by demonstrating both fixed-attitude control and three-dimensional trajectory tracking in a physics-based environment. The attitude plots illustrate the response to a roll command, while the trajectory plots provide a comparison between the desired path and the simulated flight response.
 
 The combination of response plots, motor-force analysis, position-tracking errors, and three-dimensional visualization provides a foundation for evaluating the controller under the configured simulation conditions. Further verification of the position-hold reference and quantitative tracking metrics would strengthen the overall assessment of the implementation.
+
+
+## References
+
+This project is based primarily on the following research papers:
+
+### 1. [Full Quaternion Based Attitude Control for a Quadrotor](https://doi.org/10.23919/ECC.2013.6669617)
+
+**E. Fresk and G. Nikolakopoulos**,  
+“Full Quaternion Based Attitude Control for a Quadrotor,”  
+*2013 European Control Conference (ECC)*, Zürich, Switzerland, 2013, pp. 3864–3869.
+
+**DOI:** [10.23919/ECC.2013.6669617](https://doi.org/10.23919/ECC.2013.6669617)
+
+This paper presents a quaternion-based attitude model for a quadrotor and the nonlinear Proportional Squared (P²) control algorithm. The controller is formulated directly in quaternion space and evaluated through nonlinear simulation.
+
+---
+
+### 2. [Experimental Evaluation of a Full Quaternion Based Attitude Quadrotor Controller](https://doi.org/10.1109/ETFA.2015.7301555)
+
+**E. Fresk and G. Nikolakopoulos**,  
+“Experimental Evaluation of a Full Quaternion Based Attitude Quadrotor Controller,”  
+*2015 IEEE 20th Conference on Emerging Technologies & Factory Automation (ETFA)*, 2015, pp. 1–4.
+
+**DOI:** [10.1109/ETFA.2015.7301555](https://doi.org/10.1109/ETFA.2015.7301555)
+
+This paper presents the experimental evaluation of the full quaternion-based P² attitude controller on a quadrotor platform. The work also combines quaternion-based attitude estimation using a Madgwick complementary filter and evaluates controller performance under external disturbances.
