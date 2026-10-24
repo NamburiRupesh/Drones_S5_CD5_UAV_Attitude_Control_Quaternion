@@ -22,14 +22,16 @@ MODE = "trajectory"
 # Z is altitude measured upward from the ground plane (Z=0).
 # You can freely add, remove, or modify waypoints in this list!
 WAYPOINTS = [
-    [0.0, 0.0, 1.0],   # WP1: Takeoff / initial hover
-    [2.0, 0.0, 2.0],   # WP2: Forward climb
-    [4.0, 2.0, 3.0],   # WP3: High curve right
-    [6.0, 4.0, 2.5],   # WP4: Banking descent
-    [8.0, 2.0, 2.0],   # WP5: Return curve
-    [6.0, 0.0, 1.5],   # WP6: Approach
-    [3.0, -1.0, 1.2],  # WP7: Final leg
-    [0.0, 0.0, 1.0],   # WP8: Return to home / hover
+    [ 0.0,  0.0, 1.0],
+    [ 0.5,  0.0, 1.2],
+    [ 0.0,  0.5, 1.4],
+    [-0.5,  0.0, 1.6],
+    [ 0.0, -0.5, 1.8],
+    [ 0.7,  0.0, 2.0],
+    [ 0.0,  0.7, 2.2],
+    [-0.7,  0.0, 2.4],
+    [ 0.0, -0.7, 2.6],
+    [ 0.0,  0.0, 2.8],
 ]
 
 # Total flight duration for trajectory following (seconds)

@@ -205,7 +205,7 @@ def create_attitude_arena_visuals(hold_pos):
 # MAIN SIMULATION RUNNER
 # ==============================================================================
 
-def run_simulation(flight_mode=None):
+def run_simulation(flight_mode=None, save_results=False):
     """
     Initializes PyBullet with GUI enabled, runs the closed-loop flight simulation,
     logs all state variables, and produces verification plots.
@@ -386,6 +386,9 @@ def run_simulation(flight_mode=None):
     wall_start = time.perf_counter()
 
     for step in range(total_steps):
+        if not p.isConnected():
+            print("\n[PyBullet] Visualizer window closed. Ending simulation early and showing plots...")
+            break
         t = step * dt
 
         # Read current rigid-body state from PyBullet
@@ -599,50 +602,46 @@ def run_simulation(flight_mode=None):
     print(f"  Max Motor Force           : {np.max(motors_arr):.2f} N (Limit = {config.MAX_MOTOR_THRUST:.2f} N)")
     print("=" * 65)
 
-    # 10. Save Logs and Generate Plots
-    save_results_and_plots(
+    # 10. Display Simulation Result Plots (Pop up interactively after simulation)
+    show_simulation_results(
         time_arr, pos_act_arr, pos_des_arr,
         rpy_act_arr, rpy_des_arr,
         pos_err_arr, att_err_arr,
         thrust_arr, torque_arr, motors_arr,
-        waypoints, mode
+        waypoints, mode,
+        save=save_results
     )
 
 
 # ==============================================================================
-# LOG SAVING & PLOT GENERATION
+# SIMULATION RESULT PLOTTING (POPUP INTERACTIVE WINDOWS)
 # ==============================================================================
 
-def save_results_and_plots(time_arr, pos_act, pos_des, rpy_act, rpy_des,
-                           pos_err, att_err,
-                           thrust, torques, motors, waypoints, mode):
-    """
-    Saves CSV telemetry log and renders high-quality tracking plots in results/.
-    For B-spline trajectory mode, opens an interactive 3D Matplotlib window
-    so the user can click and drag to rotate the 3D plot.
-    """
-    results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results")
-    os.makedirs(results_dir, exist_ok=True)
+def set_figure_window_title(fig, title):
+    """Safely set the window title of a Matplotlib figure across GUI backends."""
+    try:
+        fig.canvas.manager.set_window_title(title)
+    except Exception:
+        pass
 
-    # 1. Save telemetry CSV
-    csv_path = os.path.join(results_dir, "flight_log.csv")
-    csv_header = (
-        "time,x_meas,y_meas,z_meas,x_des,y_des,z_des,"
-        "roll_meas_deg,pitch_meas_deg,yaw_meas_deg,"
-        "roll_des_deg,pitch_des_deg,yaw_des_deg,"
-        "pos_error_norm,att_error_deg,"
-        "thrust_N,tau_x,tau_y,tau_z,f1,f2,f3,f4"
-    )
-    csv_data = np.column_stack([
-        time_arr,
-        pos_act, pos_des,
-        rpy_act, rpy_des,
-        pos_err, att_err,
-        thrust, torques, motors
-    ])
-    np.savetxt(csv_path, csv_data, delimiter=",", header=csv_header, comments="")
-    print(f"\n[Saved] Telemetry log saved to: {csv_path}")
 
+def show_simulation_results(time_arr, pos_act, pos_des, rpy_act, rpy_des,
+                            pos_err, att_err,
+                            thrust, torques, motors, waypoints, mode,
+                            save=False, save_dir=None):
+    """
+    Renders simulation tracking plots and displays them directly in interactive
+    Matplotlib popup windows without saving to a separate results folder by default.
+
+    Control efforts plot features all 4 rotors clearly visible:
+      - Combined overlay plot with distinct line styles:
+          M1 (Front [+X]): Solid red
+          M2 (Rear [-X]):  Dashed blue
+          M3 (Left [+Y]):  Dash-dotted green
+          M4 (Right [-Y]): Dotted purple
+      - 4 dedicated individual subplots (Rotor 1 to Rotor 4) side-by-side
+        so each motor's force profile is visible without any occlusion.
+    """
     # Plot styling
     plt.rcParams.update({
         'font.size': 11,
@@ -654,12 +653,12 @@ def save_results_and_plots(time_arr, pos_act, pos_des, rpy_act, rpy_des,
     # --------------------------------------------------------------------------
     # Plot 1: Position Tracking / Position Hold
     # --------------------------------------------------------------------------
-    fig, axes = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
+    fig_pos, axes_pos = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
     coords = ['X', 'Y', 'Z']
     colors_act = ['#1f77b4', '#2ca02c', '#9467bd']
 
     for i in range(3):
-        ax = axes[i]
+        ax = axes_pos[i]
         ax.plot(time_arr, pos_des[:, i], 'r--', linewidth=2.0, label=f'Desired {coords[i]}')
         ax.plot(time_arr, pos_act[:, i], color=colors_act[i], linewidth=2.0, label=f'Actual {coords[i]}')
         ax.set_ylabel(f'{coords[i]} Position [m]')
@@ -667,23 +666,20 @@ def save_results_and_plots(time_arr, pos_act, pos_des, rpy_act, rpy_des,
         rmse_axis = np.sqrt(np.mean((pos_act[:, i] - pos_des[:, i])**2))
         ax.set_title(f'{coords[i]}-Axis Tracking (RMSE = {rmse_axis:.3f} m)', fontsize=11, fontweight='bold')
 
-    axes[2].set_xlabel('Time [s]')
+        # Enforce minimum physical span (10 cm) so microscopic floating-point noise
+        # (e.g. 1e-25 m) doesn't cause Matplotlib to autoscale to subatomic levels
+        y_min = min(float(np.min(pos_act[:, i])), float(np.min(pos_des[:, i])))
+        y_max = max(float(np.max(pos_act[:, i])), float(np.max(pos_des[:, i])))
+        y_center = 0.5 * (y_min + y_max)
+        y_span = y_max - y_min
+        min_pos_span = 0.1  # 10 cm minimum vertical window
+        if y_span < min_pos_span:
+            ax.set_ylim(y_center - min_pos_span / 2.0, y_center + min_pos_span / 2.0)
+
+    axes_pos[2].set_xlabel('Time [s]')
     title_str = 'Attitude Mode Position Hold (Hover 1 unit above ground)' if mode == 'attitude' else 'Trajectory Position Tracking'
-    fig.suptitle(title_str, fontsize=14, fontweight='bold')
-
-    if mode == "attitude":
-        plot_pos_path = os.path.join(results_dir, "position_hold.png")
-    else:
-        plot_pos_path = os.path.join(results_dir, "tracking_positions.png")
-
-    fig.savefig(plot_pos_path, dpi=300)
-    plt.close(fig)
-    print(f"[Saved] Position plot saved to: {plot_pos_path}")
-
-    if mode == "attitude":
-        fig_copy_path = os.path.join(results_dir, "tracking_positions.png")
-        import shutil
-        shutil.copyfile(plot_pos_path, fig_copy_path)
+    fig_pos.suptitle(title_str, fontsize=14, fontweight='bold')
+    set_figure_window_title(fig_pos, f"Position Tracking ({mode.capitalize()} Mode)")
 
     # --------------------------------------------------------------------------
     # Plot 2: Attitude Tracking (Roll, Pitch, Yaw vs Time)
@@ -700,46 +696,93 @@ def save_results_and_plots(time_arr, pos_act, pos_des, rpy_act, rpy_des,
         ax.legend(loc='upper right')
         ax.set_title(f'{rpy_names[i]} Angle Tracking', fontsize=11, fontweight='bold')
 
+        # Enforce minimum attitude span (5 degrees) so zero-deviation axes don't autoscale on numerical noise
+        y_min = min(float(np.min(rpy_act[:, i])), float(np.min(rpy_des[:, i])))
+        y_max = max(float(np.max(rpy_act[:, i])), float(np.max(rpy_des[:, i])))
+        y_center = 0.5 * (y_min + y_max)
+        y_span = y_max - y_min
+        min_att_span = 5.0  # 5 deg minimum vertical window
+        if y_span < min_att_span:
+            ax.set_ylim(y_center - min_att_span / 2.0, y_center + min_att_span / 2.0)
+
     axes_att[2].set_xlabel('Time [s]')
     fig_att.suptitle('Attitude Tracking (Quaternion P2 Controller)', fontsize=14, fontweight='bold')
-    plot_att_path = os.path.join(results_dir, "attitude_tracking.png")
-    fig_att.savefig(plot_att_path, dpi=300)
-    plt.close(fig_att)
-    print(f"[Saved] Attitude tracking plot saved to: {plot_att_path}")
+    set_figure_window_title(fig_att, "Attitude Tracking (Quaternion P2 Controller)")
 
     # --------------------------------------------------------------------------
-    # Plot 3: Control Inputs & Motor Forces
+    # Plot 3: Control Inputs & Motor Forces (All 4 Motors Clearly Visible)
     # --------------------------------------------------------------------------
-    fig_eff, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 7), sharex=True)
+    fig_eff = plt.figure(figsize=(13, 8))
+    gs = fig_eff.add_gridspec(2, 4, height_ratios=[1.2, 1.0], hspace=0.35, wspace=0.3)
 
-    # Total thrust
-    ax1.plot(time_arr, thrust, color='#e67e22', linewidth=2.0, label='Total Commanded Thrust')
-    ax1.axhline(config.HOVER_THRUST, color='black', linestyle=':', label=f'Hover Thrust ({config.HOVER_THRUST:.2f} N)')
-    ax1.set_ylabel('Thrust [N]')
-    ax1.legend(loc='upper right')
-    ax1.set_title('Collective Thrust Output', fontsize=11, fontweight='bold')
+    # Top Left: Total collective thrust
+    ax_thrust = fig_eff.add_subplot(gs[0, :2])
+    ax_thrust.plot(time_arr, thrust, color='#e67e22', linewidth=2.2, label='Total Commanded Thrust')
+    ax_thrust.axhline(config.HOVER_THRUST, color='black', linestyle=':', linewidth=1.5,
+                       label=f'Hover Thrust ({config.HOVER_THRUST:.2f} N)')
+    ax_thrust.set_xlabel('Time [s]')
+    ax_thrust.set_ylabel('Thrust [N]')
+    ax_thrust.legend(loc='upper right')
+    ax_thrust.set_title('Collective Thrust Output', fontsize=11, fontweight='bold')
+    ax_thrust.grid(True, alpha=0.4)
 
-    # Individual Motor Forces
-    motor_labels = ['M1 (Front)', 'M2 (Rear)', 'M3 (Left)', 'M4 (Right)']
-    motor_colors = ['#e74c3c', '#3498db', '#2ecc71', '#9b59b6']
+    # Top Right: Combined Individual Motor Forces with distinct line styles & widths
+    ax_comb = fig_eff.add_subplot(gs[0, 2:])
+    motor_labels = ['M1 (Front [+X])', 'M2 (Rear [-X])', 'M3 (Left [+Y])', 'M4 (Right [-Y])']
+    motor_colors = ['#d63031', '#0984e3', '#00b894', '#6c5ce7']
+    motor_styles = ['-', '--', '-.', ':']
+    motor_widths = [2.6, 2.2, 2.0, 2.5]
+
     for m in range(4):
-        ax2.plot(time_arr, motors[:, m], color=motor_colors[m], linewidth=1.5, label=motor_labels[m])
-    ax2.axhline(config.MAX_MOTOR_THRUST, color='red', linestyle='--', alpha=0.7, label=f'Motor Max ({config.MAX_MOTOR_THRUST} N)')
-    ax2.axhline(config.MIN_MOTOR_THRUST, color='black', linestyle='--', alpha=0.5)
-    ax2.set_xlabel('Time [s]')
-    ax2.set_ylabel('Motor Force [N]')
-    ax2.legend(loc='upper right', ncol=2)
-    ax2.set_title('Individual Rotor Forces (Motor Mixer)', fontsize=11, fontweight='bold')
+        ax_comb.plot(
+            time_arr, motors[:, m],
+            color=motor_colors[m],
+            linestyle=motor_styles[m],
+            linewidth=motor_widths[m],
+            alpha=0.9,
+            label=motor_labels[m]
+        )
 
-    fig_eff.suptitle('Control Efforts and Actuator Allocations', fontsize=14, fontweight='bold')
-    plot_effort_path = os.path.join(results_dir, "control_efforts.png")
-    fig_eff.savefig(plot_effort_path, dpi=300)
-    plt.close(fig_eff)
-    print(f"[Saved] Control efforts plot saved to: {plot_effort_path}")
+    ax_comb.axhline(config.MAX_MOTOR_THRUST, color='red', linestyle='--', alpha=0.7,
+                    label=f'Motor Max ({config.MAX_MOTOR_THRUST} N)')
+    ax_comb.axhline(config.MIN_MOTOR_THRUST, color='black', linestyle='--', alpha=0.4)
+    ax_comb.set_xlabel('Time [s]')
+    ax_comb.set_ylabel('Motor Force [N]')
+    ax_comb.legend(loc='upper right', ncol=2, fontsize=9)
+    ax_comb.set_title('Actuator Allocations (All 4 Motors Overlaid)', fontsize=11, fontweight='bold')
+    ax_comb.grid(True, alpha=0.4)
+
+    # Bottom Row: 4 Dedicated Individual Subplots (Rotor 1 to Rotor 4)
+    # Ensures each motor's curve is fully isolated and clearly visible
+    f_hover_per_motor = config.HOVER_THRUST / 4.0
+    for m in range(4):
+        ax_m = fig_eff.add_subplot(gs[1, m], sharex=ax_comb)
+        ax_m.plot(
+            time_arr, motors[:, m],
+            color=motor_colors[m],
+            linestyle=motor_styles[m],
+            linewidth=2.0,
+            label=motor_labels[m]
+        )
+        ax_m.axhline(config.MAX_MOTOR_THRUST, color='red', linestyle='--', alpha=0.6,
+                     label=f'Max ({config.MAX_MOTOR_THRUST:.0f} N)')
+        ax_m.axhline(f_hover_per_motor, color='black', linestyle=':', alpha=0.6,
+                     label=f'Hover ({f_hover_per_motor:.2f} N)')
+        ax_m.set_title(f'Rotor {m+1}: {motor_labels[m]}', fontsize=10, fontweight='bold', color=motor_colors[m])
+        ax_m.set_xlabel('Time [s]')
+        if m == 0:
+            ax_m.set_ylabel('Force [N]')
+        ax_m.set_ylim(-0.5, config.MAX_MOTOR_THRUST + 0.8)
+        ax_m.grid(True, alpha=0.4)
+        ax_m.legend(loc='upper right', fontsize=8)
+
+    fig_eff.suptitle('Control Efforts and Actuator Allocations (All 4 Rotors)', fontsize=13, fontweight='bold')
+    set_figure_window_title(fig_eff, "Control Efforts & Actuator Allocations (All 4 Rotors)")
 
     # --------------------------------------------------------------------------
-    # Plot 4: 3D Trajectory (Trajectory Mode only) - Opens Interactive Window
+    # Plot 4: 3D Trajectory (Trajectory Mode only)
     # --------------------------------------------------------------------------
+    fig_3d = None
     if mode == "trajectory":
         fig_3d = plt.figure(figsize=(10, 8))
         ax = fig_3d.add_subplot(111, projection='3d')
@@ -761,18 +804,47 @@ def save_results_and_plots(time_arr, pos_act, pos_des, rpy_act, rpy_des,
         ax.set_zlabel('Altitude Z [m]')
         ax.set_title('3D Quadrotor Trajectory Following Comparison\n(Click & drag mouse to rotate 3D view)', fontsize=13, fontweight='bold')
         ax.legend(loc='best')
+        set_figure_window_title(fig_3d, "3D Quadrotor Flight Trajectory")
 
-        plot_3d_path = os.path.join(results_dir, "trajectory_3d.png")
-        fig_3d.savefig(plot_3d_path, dpi=300)
-        print(f"[Saved] 3D trajectory plot saved to: {plot_3d_path}")
+    # Optional saving only if requested via CLI (--save)
+    if save:
+        out_dir = save_dir if save_dir else "."
+        os.makedirs(out_dir, exist_ok=True)
+        csv_path = os.path.join(out_dir, "flight_log.csv")
+        csv_header = (
+            "time,x_meas,y_meas,z_meas,x_des,y_des,z_des,"
+            "roll_meas_deg,pitch_meas_deg,yaw_meas_deg,"
+            "roll_des_deg,pitch_des_deg,yaw_des_deg,"
+            "pos_error_norm,att_error_deg,"
+            "thrust_N,tau_x,tau_y,tau_z,f1,f2,f3,f4"
+        )
+        csv_data = np.column_stack([
+            time_arr, pos_act, pos_des, rpy_act, rpy_des,
+            pos_err, att_err, thrust, torques, motors
+        ])
+        np.savetxt(csv_path, csv_data, delimiter=",", header=csv_header, comments="")
+        fig_pos.savefig(os.path.join(out_dir, "tracking_positions.png"), dpi=300)
+        fig_att.savefig(os.path.join(out_dir, "attitude_tracking.png"), dpi=300)
+        fig_eff.savefig(os.path.join(out_dir, "control_efforts.png"), dpi=300)
+        if fig_3d is not None:
+            fig_3d.savefig(os.path.join(out_dir, "trajectory_3d.png"), dpi=300)
+        print(f"[Saved] Flight telemetry and plots saved to: {os.path.abspath(out_dir)}")
 
-        # Open interactive matplotlib window so user can rotate in 3D
-        print("\n" + "=" * 65)
-        print(" [Interactive Plot] Opening 3D Trajectory Window...")
-        print(" Click and drag with your mouse to rotate the 3D plot.")
-        print(" Close the plot window when done.")
-        print("=" * 65)
-        plt.show()
+    # Pop up all figure windows interactively
+    print("\n" + "=" * 65)
+    print(" [Interactive Plots] Simulation Result Windows Popped Up:")
+    print("   * Window 1: Position Tracking / Position Hold")
+    print("   * Window 2: Attitude Tracking (Roll, Pitch, Yaw)")
+    print("   * Window 3: Control Efforts & Actuator Allocations (All 4 Rotors)")
+    if mode == "trajectory":
+        print("   * Window 4: 3D Flight Trajectory (Click & drag to rotate)")
+    print(" Close the plot windows when done.")
+    print("=" * 65)
+    plt.show()
+
+
+# Backward-compatible alias
+save_results_and_plots = show_simulation_results
 
 
 # ==============================================================================
@@ -783,6 +855,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="PyBullet Quadrotor Simulation with P2 Attitude Controller")
     parser.add_argument("--mode", type=str, choices=["trajectory", "attitude"], default=None,
                         help="Select experiment mode: 'trajectory' (default) or 'attitude'")
+    parser.add_argument("--save", action="store_true", default=False,
+                        help="Optionally save logs and plots to disk (default: False, plots pop up interactively)")
     args = parser.parse_args()
 
-    run_simulation(flight_mode=args.mode)
+    run_simulation(flight_mode=args.mode, save_results=args.save)
